@@ -81,7 +81,7 @@ tasks.register<Copy>("copyFrontendResources") {
     dependsOn(":web-app-frontend:build")
 
     from(project(":web-app-frontend").file("build/out"))
-    into(layout.buildDirectory.dir("resources/main/web/app/mocks/static"))
+    into(layout.buildDirectory.dir("resources/main/web/app/json/static"))
 }
 
 tasks.named("processResources") {
@@ -127,10 +127,10 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            artifactId = "web-app-mocks"
+            artifactId = "web-app-json"
             pom {
                 packaging = "jar"
-                url = "https://github.com/sibdevtools/web-app-mocks"
+                url = "https://github.com/sibdevtools/web-app-json"
 
                 licenses {
                     license {
@@ -140,9 +140,9 @@ publishing {
                 }
 
                 scm {
-                    connection.set("scm:https://github.com/sibdevtools/web-app-mocks.git")
+                    connection.set("scm:https://github.com/sibdevtools/web-app-json.git")
                     developerConnection.set("scm:git:ssh://github.com/sibdevtools")
-                    url.set("https://github.com/sibdevtools/web-app-mocks")
+                    url.set("https://github.com/sibdevtools/web-app-json")
                 }
 
                 developers {
