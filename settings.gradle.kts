@@ -1,0 +1,1 @@
+include(":web-app", ":web-app-frontend", ":standalone")
