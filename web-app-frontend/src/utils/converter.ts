@@ -13,53 +13,57 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
     schema.type = type;
   }
 
-  switch (node.type) {
-    case 'string':
-      if (node.minLength !== undefined) schema.minLength = node.minLength;
-      if (node.maxLength !== undefined) schema.maxLength = node.maxLength;
-      if (node.pattern) schema.pattern = node.pattern;
-      if (node.format) schema.format = node.format;
-      break;
-    case 'integer':
-    case 'number':
-      if (node.minimum !== undefined) schema.minimum = node.minimum;
-      if (node.maximum !== undefined) schema.maximum = node.maximum;
-      break;
-    case 'object':
-      schema.additionalProperties = node.additionalProperties;
-      if (node.properties) {
-        schema.properties = node.properties.reduce((acc, prop) => {
-          acc[prop.name] = convertToJsonSchema(prop.schema);
-          return acc;
-        }, {} as Record<string, any>);
+  if (node.nodeType === 'simple') {
+    switch (node.type) {
+      case 'string':
+        if (node.minLength !== undefined) schema.minLength = node.minLength;
+        if (node.maxLength !== undefined) schema.maxLength = node.maxLength;
+        if (node.pattern) schema.pattern = node.pattern;
+        if (node.format) schema.format = node.format;
+        break;
+      case 'integer':
+      case 'number':
+        if (node.minimum !== undefined) schema.minimum = node.minimum;
+        if (node.maximum !== undefined) schema.maximum = node.maximum;
+        break;
+      case 'object':
+        schema.additionalProperties = node.additionalProperties;
+        if (node.properties) {
+          schema.properties = node.properties.reduce((acc, prop) => {
+            acc[prop.name] = convertToJsonSchema(prop.schema);
+            return acc;
+          }, {} as Record<string, any>);
 
-        const required = node.properties
-          .filter(prop => prop.required)
-          .map(prop => prop.name);
-        if (required.length > 0) {
-          schema.required = required;
+          const required = node.properties
+            .filter(prop => prop.required)
+            .map(prop => prop.name);
+          if (required.length > 0) {
+            schema.required = required;
+          }
         }
-      }
-      break;
-    case 'array':
-      if (node.items) schema.items = convertToJsonSchema(node.items);
-      if (node.minItems !== undefined) schema.minItems = node.minItems;
-      if (node.maxItems !== undefined) schema.maxItems = node.maxItems;
-      break;
-  }
+        break;
+      case 'array':
+        if (node.items) schema.items = convertToJsonSchema(node.items);
+        if (node.minItems !== undefined) schema.minItems = node.minItems;
+        if (node.maxItems !== undefined) schema.maxItems = node.maxItems;
+        break;
+    }
 
-  switch (node.specification) {
-    case 'const':
-      if (node.const) schema.const = JSON.parse(node.const);
-      break;
-    case 'enum':
-      if (node.enum) schema.enum = node.enum?.map(it => JSON.parse(it));
-      break;
-    case 'reference':
-      if (node.reference) {
-        schema.$ref = node.reference;
-      }
-      break;
+    switch (node.specification) {
+      case 'const':
+        if (node.const) schema.const = JSON.parse(node.const);
+        break;
+      case 'enum':
+        if (node.enum) schema.enum = node.enum?.map(it => JSON.parse(it));
+        break;
+      case 'reference':
+        if (node.reference) {
+          schema.$ref = node.reference;
+        }
+        break;
+    }
+  } else {
+    schema[node.nodeType] = node[node.nodeType]?.map(schemaNode => convertToJsonSchema(schemaNode));
   }
 
   if (isRoot && node.definitions) {
@@ -78,6 +82,11 @@ export function parseJsonSchema(json: any): SchemaNode {
   let specification: SchemaNode['specification'] = 'none';
   let nullable = false;
 
+  let nodeType: 'simple' | 'oneOf' | 'anyOf' | 'allOf' = 'simple';
+  if (json.oneOf) nodeType = 'oneOf';
+  else if (json.anyOf) nodeType = 'anyOf';
+  else if (json.allOf) nodeType = 'allOf';
+
   if (Array.isArray(json.type)) {
     const types = json.type.filter((t: string) => t !== 'null');
     type = types[0] || 'null';
@@ -95,6 +104,7 @@ export function parseJsonSchema(json: any): SchemaNode {
   }
 
   const baseNode: SchemaNode = {
+    nodeType,
     type,
     specification,
     nullable,
@@ -145,6 +155,16 @@ export function parseJsonSchema(json: any): SchemaNode {
     case 'reference':
       baseNode.reference = json['$ref']
       break;
+  }
+
+  if (json.allOf) {
+    baseNode.allOf = json.allOf.map((schema: any) => parseJsonSchema(schema));
+  }
+  if (json.anyOf) {
+    baseNode.anyOf = json.anyOf.map((schema: any) => parseJsonSchema(schema));
+  }
+  if (json.oneOf) {
+    baseNode.oneOf = json.oneOf.map((schema: any) => parseJsonSchema(schema));
   }
 
   if (json.$defs) {
