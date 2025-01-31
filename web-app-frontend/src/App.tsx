@@ -31,7 +31,7 @@ const buildInFormats = [
 ]
 
 interface SchemaNode {
-  type: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'null';
+  type: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'const' | 'null';
   nullable: boolean;
   title: string;
   description: string;
@@ -50,6 +50,7 @@ interface SchemaNode {
   minItems?: number;
   maxItems?: number;
   additionalProperties?: boolean;
+  const?: string;
 }
 
 const initialSchema: SchemaNode = {
@@ -65,10 +66,13 @@ function convertToJsonSchema(node: SchemaNode): any {
   const type = node.nullable ? ['null', baseType] : baseType;
 
   const schema: any = {
-    type,
     title: node.title || undefined,
     description: node.description || undefined,
   };
+
+  if (type !== 'const') {
+    schema.type = type;
+  }
 
   switch (node.type) {
     case 'string':
@@ -102,6 +106,9 @@ function convertToJsonSchema(node: SchemaNode): any {
       if (node.items) schema.items = convertToJsonSchema(node.items);
       if (node.minItems !== undefined) schema.minItems = node.minItems;
       if (node.maxItems !== undefined) schema.maxItems = node.maxItems;
+      break;
+    case 'const':
+      if (node.const) schema.const = JSON.parse(node.const);
       break;
   }
 
@@ -159,7 +166,7 @@ const SchemaForm: React.FC<{
             value={node.type}
             onChange={(e) => onChange({ ...node, type: e.target.value as SchemaNode['type'] })}
           >
-            {['string', 'boolean', 'number', 'integer', 'object', 'array', 'null'].map((type) => (
+            {['string', 'boolean', 'number', 'integer', 'object', 'array', 'const', 'null'].map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </Form.Select>
@@ -376,6 +383,20 @@ const SchemaForm: React.FC<{
           </Accordion.Item>
         </Accordion>
       )}
+
+      {node.type === 'const' && (
+        <>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Const</InputGroup.Text>
+              <Form.Control
+                value={node.const || ''}
+                onChange={(e) => onChange({ ...node, const: e.target.value })}
+              />
+            </InputGroup>
+          </Form.Group>
+        </>
+      )}
     </div>
   );
 };
@@ -415,9 +436,7 @@ const App: React.FC = () => {
       }
 
       setValidationErrors(errors);
-      if (errors.length === 0) {
-        console.log('Validation successful!');
-      } else {
+      if (errors.length > 0) {
         console.error('Validation errors:', errors);
       }
     } catch (e) {
@@ -429,7 +448,9 @@ const App: React.FC = () => {
     let type: SchemaNode['type'] = 'string';
     let nullable = false;
 
-    if (Array.isArray(json.type)) {
+    if ('const' in json) {
+      type = 'const';
+    } else if (Array.isArray(json.type)) {
       const types = json.type.filter((t: string) => t !== 'null');
       type = types[0] || 'null';
       nullable = json.type.includes('null');
@@ -468,6 +489,9 @@ const App: React.FC = () => {
         baseNode.items = json.items ? parseJsonSchema(json.items) : initialSchema;
         baseNode.minItems = json.minItems;
         baseNode.maxItems = json.maxItems;
+        break;
+      case 'const':
+        baseNode.const = JSON.stringify(json.const);
         break;
     }
 
