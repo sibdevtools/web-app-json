@@ -1,6 +1,7 @@
 package com.github.sibdevtools.web.app.json.conf;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.resource.VersionResourceResolver;
  */
 @Configuration
 @EnableWebMvc
+@PropertySource("classpath:web/app/json/application.properties")
 public class JSONWebConf implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
