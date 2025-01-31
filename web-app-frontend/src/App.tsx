@@ -6,6 +6,7 @@ import SchemaFormBuilder, { initialSchema } from './components/SchemaFormBuilder
 import { convertToJsonSchema, parseJsonSchema } from './utils/converter';
 import JsonInputForm from './components/JsonInputForm';
 import { SchemaNode } from './const/type';
+import { MoveLeftIcon, MoveRightIcon, PencilEdit01Icon } from 'hugeicons-react';
 
 const App: React.FC = () => {
   const [rootSchema, setRootSchema] = useState<SchemaNode>(initialSchema);
@@ -14,6 +15,7 @@ const App: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [schemaValidationErrors, setSchemaValidationErrors] = useState<string[]>([]);
   const [editorMode, setEditorMode] = useState<'builder' | 'ace'>('builder');
+  const [showValidation, setShowValidation] = useState(true);
 
   const changeEditorMode = (mode: 'builder' | 'ace') => {
     if (mode === 'ace') {
@@ -56,12 +58,12 @@ const App: React.FC = () => {
   return (
     <Container className="my-4">
       <Row>
-        <Col md={6}>
+        <Col md={showValidation ? 6 : 12}>
           <Row className="mb-4">
-            <Col md={8}>
+            <Col md={showValidation ? 7 : 10}>
               <h3>JSON Schema Builder</h3>
             </Col>
-            <Col md={4}>
+            <Col md={showValidation ? 5 : 2}>
               <ButtonGroup className="mb-2">
                 <Button variant={editorMode === 'builder' ? 'primary' : 'outline-primary'}
                         onClick={() => changeEditorMode('builder')}>
@@ -69,13 +71,20 @@ const App: React.FC = () => {
                 </Button>
                 <Button variant={editorMode === 'ace' ? 'primary' : 'outline-primary'}
                         onClick={() => changeEditorMode('ace')}>
-                  Text Editor
+                  <PencilEdit01Icon />
+                </Button>
+                <Button variant={showValidation ? 'secondary' : 'outline-secondary'}
+                        onClick={() => {
+                          setShowValidation(!showValidation)
+                        }}>
+                  {showValidation && (<MoveRightIcon />)}
+                  {!showValidation && (<MoveLeftIcon />)}
                 </Button>
               </ButtonGroup>
             </Col>
           </Row>
         </Col>
-        <Col md={6}>
+        <Col md={6} hidden={!showValidation}>
           <Row className="mb-4">
             <h3>Validation</h3>
           </Row>
@@ -83,7 +92,7 @@ const App: React.FC = () => {
       </Row>
 
       <Row>
-        <Col md={6}>
+        <Col md={showValidation ? 6 : 12}>
           {editorMode === 'builder' ? (
             <SchemaFormBuilder
               node={rootSchema}
@@ -107,7 +116,7 @@ const App: React.FC = () => {
             </div>
           )}
         </Col>
-        <Col md={6}>
+        <Col md={6} hidden={!showValidation}>
           <JsonInputForm jsonSchemaProvider={jsonSchemaProvider}
                          validationErrors={validationErrors}
                          setValidationErrors={setValidationErrors} />
