@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Accordion, Alert, Button, ButtonGroup, Container, Form, InputGroup, Row } from 'react-bootstrap';
+import { Accordion, Alert, Button, ButtonGroup, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import Ajv from 'ajv';
 import AceEditor from 'react-ace';
 import { loadSettings } from './settings/utils';
-import { TextWrapIcon } from 'hugeicons-react';
+import { CheckmarkSquare01Icon, TextWrapIcon } from 'hugeicons-react';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'hugeicons-react';
 import 'ace-builds/src-min-noconflict/mode-json'
 import 'ace-builds/src-min-noconflict/snippets/json'
 
@@ -347,6 +349,8 @@ const App: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const settings = loadSettings();
   const [isWordWrapEnabled, setIsWordWrapEnabled] = useState(true);
+  const [isWordWrapInputEnabled, setIsWordWrapInputEnabled] = useState(true);
+  const [editorMode, setEditorMode] = useState<'builder' | 'ace'>('builder');
 
   const validateAgainstSchema = () => {
     try {
@@ -364,7 +368,10 @@ const App: React.FC = () => {
             return `${e.message}: '${propName}'`;
           }
           console.log(JSON.stringify(e));
-          return `${JSON.stringify(e)} ${e.dataPath} ${e.message}`;
+          if(e.dataPath) {
+            return `'${e.dataPath}': ${e.message}`;
+          }
+          return `${e.message}`;
         }));
       }
 
@@ -381,75 +388,127 @@ const App: React.FC = () => {
 
   return (
     <Container className="my-4">
-      <h1 className="mb-4">JSON Schema Builder</h1>
-      <SchemaForm node={rootSchema} onChange={setRootSchema} />
-
       <Row>
-        {/* Word Wrap Button */}
-        <div>
-          <ButtonGroup className={'float-end'}>
-            <Button
-              variant="primary"
-              active={isWordWrapEnabled}
-              title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
-              onClick={() => setIsWordWrapEnabled((prev) => !prev)}
-            >
-              <TextWrapIcon />
+        <Col md={6}>
+          <h3 className="mb-4">JSON Schema Builder</h3>
+          <ButtonGroup className="mb-2">
+            <Button variant={editorMode === 'builder' ? 'primary' : 'secondary'}
+                    onClick={() => setEditorMode('builder')}>
+              Builder
+            </Button>
+            <Button variant={editorMode === 'ace' ? 'primary' : 'secondary'} onClick={() => setEditorMode('ace')}>
+              Text Editor
             </Button>
           </ButtonGroup>
-          <AceEditor
-            mode={'json'}
-            theme={settings['aceTheme'].value}
-            name={`schema-representation`}
-            value={JSON.stringify(convertToJsonSchema(rootSchema), null, 4)}
-            className={'rounded'}
-            style={{
-              resize: 'vertical',
-              overflow: 'auto',
-              height: '480px',
-              minHeight: '200px',
-            }}
-            fontSize={14}
-            width="100%"
-            height="480px"
-            showPrintMargin={true}
-            showGutter={true}
-            highlightActiveLine={true}
-            wrapEnabled={isWordWrapEnabled}
-            setOptions={{
-              showLineNumbers: true,
-              wrap: isWordWrapEnabled,
-              useWorker: false,
-              readOnly: true,
-            }}
-            editorProps={{ $blockScrolling: true }}
-          />
-        </div>
+          {editorMode === 'builder' ? (
+            <SchemaForm node={rootSchema} onChange={setRootSchema} />
+          ) : (
+            <div>
+              <ButtonGroup className={'float-end'}>
+                <Button
+                  variant="primary"
+                  active={isWordWrapEnabled}
+                  title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
+                  onClick={() => setIsWordWrapEnabled((prev) => !prev)}
+                >
+                  <TextWrapIcon />
+                </Button>
+              </ButtonGroup>
+              <AceEditor
+                mode={'json'}
+                theme={settings['aceTheme'].value}
+                name={`schema-representation`}
+                value={JSON.stringify(convertToJsonSchema(rootSchema), null, 4)}
+                className={'rounded'}
+                style={{
+                  resize: 'vertical',
+                  overflow: 'auto',
+                  height: '480px',
+                  minHeight: '200px',
+                }}
+                fontSize={14}
+                width="100%"
+                height="480px"
+                showPrintMargin={true}
+                showGutter={true}
+                highlightActiveLine={true}
+                wrapEnabled={isWordWrapEnabled}
+                setOptions={{
+                  showLineNumbers: true,
+                  wrap: isWordWrapEnabled,
+                  useWorker: false,
+                  readOnly: true,
+                }}
+                editorProps={{ $blockScrolling: true }}
+              />
+            </div>
+          )
+          }
+        </Col>
+        <Col md={6}>
+          <div className="mb-4">
+            <h3>Validation</h3>
+            <div>
+              <ButtonGroup className={'float-end'}>
+                <Button
+                  variant="outline-primary"
+                  title={'Validate'}
+                  onClick={validateAgainstSchema}
+                >
+                  <CheckmarkSquare01Icon />
+                </Button>
+                <Button
+                  variant="primary"
+                  active={isWordWrapInputEnabled}
+                  title={isWordWrapInputEnabled ? 'Unwrap' : 'Wrap'}
+                  onClick={() => setIsWordWrapInputEnabled((prev) => !prev)}
+                >
+                  <TextWrapIcon />
+                </Button>
+              </ButtonGroup>
+              <AceEditor
+                mode={'json'}
+                theme={settings['aceTheme'].value}
+                name={`json-input`}
+                value={validationData}
+                onChange={(value) => setValidationData(value)}
+                className={`rounded border ${(validationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
+                placeholder="Enter JSON to validate"
+                style={{
+                  resize: 'vertical',
+                  overflow: 'auto',
+                  height: '480px',
+                  minHeight: '200px',
+                }}
+                fontSize={14}
+                width="100%"
+                height="480px"
+                showPrintMargin={true}
+                showGutter={true}
+                highlightActiveLine={true}
+                wrapEnabled={isWordWrapInputEnabled}
+                setOptions={{
+                  showLineNumbers: true,
+                  wrap: isWordWrapInputEnabled,
+                  useWorker: false,
+                }}
+                editorProps={{ $blockScrolling: true }}
+              />
+            </div>
+
+            {validationErrors.length > 0 && (
+              <div className="mt-3">
+                {validationErrors.map((error, i) => (
+                  <Alert key={i} variant="danger" className="py-1 my-1">
+                    {error}
+                  </Alert>
+                ))}
+              </div>
+            )}
+          </div>
+        </Col>
       </Row>
 
-      <div className="mt-5">
-        <h4>Validation</h4>
-        <Form.Control
-          as="textarea"
-          rows={5}
-          value={validationData}
-          onChange={(e) => setValidationData(e.target.value)}
-          placeholder="Enter JSON to validate"
-        />
-        <Button variant="info" className="mt-2" onClick={validateAgainstSchema}>
-          Validate
-        </Button>
-
-        {validationErrors.length > 0 && (
-          <div className="mt-3">
-            {validationErrors.map((error, i) => (
-              <Alert key={i} variant="danger" className="py-1 my-1">
-                {error}
-              </Alert>
-            ))}
-          </div>
-        )}
-      </div>
     </Container>
   );
 };
