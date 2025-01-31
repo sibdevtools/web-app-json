@@ -349,6 +349,7 @@ const App: React.FC = () => {
   const [textSchema, setTextSchema] = useState<string>('');
   const [validationData, setValidationData] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [textSchemaValidationErrors, setTextSchemaValidationErrors] = useState<string[]>([]);
   const settings = loadSettings();
   const [isWordWrapEnabled, setIsWordWrapEnabled] = useState(true);
   const [isWordWrapInputEnabled, setIsWordWrapInputEnabled] = useState(true);
@@ -441,16 +442,19 @@ const App: React.FC = () => {
       setTextSchema(
         JSON.stringify(convertToJsonSchema(rootSchema), null, 4)
       )
+      setEditorMode(mode)
     } else {
       try {
         const parsed = JSON.parse(textSchema);
         const converted = parseJsonSchema(parsed);
         setRootSchema(converted);
+        setEditorMode(mode)
+        setTextSchemaValidationErrors([])
       } catch (error) {
         console.error(`Invalid JSON Schema`, error);
+        setTextSchemaValidationErrors([`${error}`])
       }
     }
-    setEditorMode(mode)
   }
 
   return (
@@ -470,45 +474,56 @@ const App: React.FC = () => {
           {editorMode === 'builder' ? (
             <SchemaForm node={rootSchema} onChange={setRootSchema} />
           ) : (
-            <div>
-              <ButtonGroup className={'float-end'}>
-                <Button
-                  variant="primary"
-                  active={isWordWrapEnabled}
-                  title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
-                  onClick={() => setIsWordWrapEnabled((prev) => !prev)}
-                >
-                  <TextWrapIcon />
-                </Button>
-              </ButtonGroup>
-              <AceEditor
-                mode={'json'}
-                theme={settings['aceTheme'].value}
-                name={`schema-representation`}
-                value={textSchema}
-                onChange={setTextSchema}
-                className={'rounded'}
-                style={{
-                  resize: 'vertical',
-                  overflow: 'auto',
-                  height: '480px',
-                  minHeight: '200px',
-                }}
-                fontSize={14}
-                width="100%"
-                height="480px"
-                showPrintMargin={true}
-                showGutter={true}
-                highlightActiveLine={true}
-                wrapEnabled={isWordWrapEnabled}
-                setOptions={{
-                  showLineNumbers: true,
-                  wrap: isWordWrapEnabled,
-                  useWorker: false,
-                }}
-                editorProps={{ $blockScrolling: true }}
-              />
-            </div>
+            <>
+              <div>
+                <ButtonGroup className={'float-end'}>
+                  <Button
+                    variant="primary"
+                    active={isWordWrapEnabled}
+                    title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
+                    onClick={() => setIsWordWrapEnabled((prev) => !prev)}
+                  >
+                    <TextWrapIcon />
+                  </Button>
+                </ButtonGroup>
+                <AceEditor
+                  mode={'json'}
+                  theme={settings['aceTheme'].value}
+                  name={`schema-representation`}
+                  value={textSchema}
+                  onChange={setTextSchema}
+                  className={`rounded border ${(textSchemaValidationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
+                  style={{
+                    resize: 'vertical',
+                    overflow: 'auto',
+                    height: '480px',
+                    minHeight: '200px',
+                  }}
+                  fontSize={14}
+                  width="100%"
+                  height="480px"
+                  showPrintMargin={true}
+                  showGutter={true}
+                  highlightActiveLine={true}
+                  wrapEnabled={isWordWrapEnabled}
+                  setOptions={{
+                    showLineNumbers: true,
+                    wrap: isWordWrapEnabled,
+                    useWorker: false,
+                  }}
+                  editorProps={{ $blockScrolling: true }}
+                />
+              </div>
+              {textSchemaValidationErrors.length > 0 && (
+                <div className="mt-3">
+                  {textSchemaValidationErrors.map((error, i) => (
+                    <Alert key={i} variant="danger" className="py-1 my-1">
+                      {error}
+                    </Alert>
+                  ))}
+                </div>
+              )}
+            </>
           )
           }
         </Col>
