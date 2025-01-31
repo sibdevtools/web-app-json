@@ -13,7 +13,7 @@ import 'ace-builds/src-min-noconflict/snippets/json'
 const ajv = new Ajv({ allErrors: true });
 
 interface SchemaNode {
-  type: 'string' | 'boolean' | 'number' | 'object' | 'array' | 'null';
+  type: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'null';
   nullable: boolean;
   title: string;
   description: string;
@@ -57,6 +57,7 @@ function convertToJsonSchema(node: SchemaNode): any {
       if (node.maxLength !== undefined) schema.maxLength = node.maxLength;
       if (node.pattern) schema.pattern = node.pattern;
       break;
+    case 'integer':
     case 'number':
       if (node.minimum !== undefined) schema.minimum = node.minimum;
       if (node.maximum !== undefined) schema.maximum = node.maximum;
@@ -138,7 +139,7 @@ const SchemaForm: React.FC<{
             value={node.type}
             onChange={(e) => onChange({ ...node, type: e.target.value as SchemaNode['type'] })}
           >
-            {['string', 'boolean', 'number', 'object', 'array', 'null'].map((type) => (
+            {['string', 'boolean', 'number', 'integer', 'object', 'array', 'null'].map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </Form.Select>
@@ -191,7 +192,7 @@ const SchemaForm: React.FC<{
         </>
       )}
 
-      {node.type === 'number' && (
+      {(node.type === 'number' || node.type === 'integer') && (
         <>
           <Form.Group className="mb-3">
             <InputGroup>
@@ -369,7 +370,7 @@ const App: React.FC = () => {
             return `${e.message}: '${propName}'`;
           }
           console.log(JSON.stringify(e));
-          if(e.dataPath) {
+          if (e.dataPath) {
             return `'${e.dataPath}': ${e.message}`;
           }
           return `${e.message}`;
@@ -387,11 +388,67 @@ const App: React.FC = () => {
     }
   };
 
+  function parseJsonSchema(json: any): SchemaNode {
+    let type: SchemaNode['type'] = 'string';
+    let nullable = false;
+
+    if (Array.isArray(json.type)) {
+      const types = json.type.filter((t: string) => t !== 'null');
+      type = types[0] || 'null';
+      nullable = json.type.includes('null');
+    } else if (typeof json.type === 'string') {
+      type = json.type as SchemaNode['type'];
+    }
+
+    const baseNode: SchemaNode = {
+      type,
+      nullable,
+      title: json.title || '',
+      description: json.description || '',
+      additionalProperties: json.additionalProperties ?? true,
+    };
+
+    switch (type) {
+      case 'string':
+        baseNode.minLength = json.minLength;
+        baseNode.maxLength = json.maxLength;
+        baseNode.pattern = json.pattern;
+        break;
+      case 'integer':
+      case 'number':
+        baseNode.minimum = json.minimum;
+        baseNode.maximum = json.maximum;
+        break;
+      case 'object':
+        baseNode.properties = Object.entries(json.properties || {}).map(([name, prop]) => ({
+          name,
+          required: (json.required || []).includes(name),
+          schema: parseJsonSchema(prop)
+        }));
+        break;
+      case 'array':
+        baseNode.items = json.items ? parseJsonSchema(json.items) : initialSchema;
+        baseNode.minItems = json.minItems;
+        baseNode.maxItems = json.maxItems;
+        break;
+    }
+
+    return baseNode;
+  }
+
   const changeEditorMode = (mode: 'builder' | 'ace') => {
-    if(mode === 'ace') {
+    if (mode === 'ace') {
       setTextSchema(
         JSON.stringify(convertToJsonSchema(rootSchema), null, 4)
       )
+    } else {
+      try {
+        const parsed = JSON.parse(textSchema);
+        const converted = parseJsonSchema(parsed);
+        setRootSchema(converted);
+      } catch (error) {
+        console.error(`Invalid JSON Schema`, error);
+      }
     }
     setEditorMode(mode)
   }
