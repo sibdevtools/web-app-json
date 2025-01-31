@@ -12,6 +12,24 @@ import 'ace-builds/src-min-noconflict/snippets/json'
 
 const ajv = new Ajv({ allErrors: true });
 
+const buildInFormats = [
+  'date-time', 'time', 'date', 'duration',
+
+  'email', 'idn-email',
+
+  'hostname', 'idn-hostname',
+
+  'ipv4', 'ipv6',
+
+  'uuid', 'uri', 'uri-reference', 'iri',
+
+  'uri-template',
+
+  'json-pointer', 'relative-json-pointer',
+
+  'regex'
+]
+
 interface SchemaNode {
   type: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'null';
   nullable: boolean;
@@ -20,6 +38,7 @@ interface SchemaNode {
   minLength?: number;
   maxLength?: number;
   pattern?: string;
+  format?: string;
   minimum?: number;
   maximum?: number;
   properties?: Array<{
@@ -56,6 +75,7 @@ function convertToJsonSchema(node: SchemaNode): any {
       if (node.minLength !== undefined) schema.minLength = node.minLength;
       if (node.maxLength !== undefined) schema.maxLength = node.maxLength;
       if (node.pattern) schema.pattern = node.pattern;
+      if (node.format) schema.format = node.format;
       break;
     case 'integer':
     case 'number':
@@ -187,6 +207,22 @@ const SchemaForm: React.FC<{
                 value={node.pattern || ''}
                 onChange={(e) => onChange({ ...node, pattern: e.target.value })}
               />
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Format</InputGroup.Text>
+              <Form.Control
+                value={node.format || ''}
+                list="format-suggestions"
+                onChange={(e) => onChange({ ...node, format: e.target.value })}
+              />
+              <datalist id="format-suggestions">
+                {
+                  buildInFormats
+                    .map(it => <option key={it} value={it} />)
+                }
+              </datalist>
             </InputGroup>
           </Form.Group>
         </>
@@ -414,6 +450,7 @@ const App: React.FC = () => {
         baseNode.minLength = json.minLength;
         baseNode.maxLength = json.maxLength;
         baseNode.pattern = json.pattern;
+        baseNode.format = json.format;
         break;
       case 'integer':
       case 'number':
