@@ -31,7 +31,7 @@ const buildInFormats = [
 ]
 
 interface SchemaNode {
-  type: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'const' | 'null';
+  type: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'const' | 'enum' | 'null';
   nullable: boolean;
   title: string;
   description: string;
@@ -51,6 +51,7 @@ interface SchemaNode {
   maxItems?: number;
   additionalProperties?: boolean;
   const?: string;
+  enum?: Array<string>;
 }
 
 const initialSchema: SchemaNode = {
@@ -70,7 +71,7 @@ function convertToJsonSchema(node: SchemaNode): any {
     description: node.description || undefined,
   };
 
-  if (type !== 'const') {
+  if (type !== 'const' && type !== 'enum') {
     schema.type = type;
   }
 
@@ -109,6 +110,9 @@ function convertToJsonSchema(node: SchemaNode): any {
       break;
     case 'const':
       if (node.const) schema.const = JSON.parse(node.const);
+      break;
+    case 'enum':
+      if (node.enum) schema.enum = node.enum?.map(it => JSON.parse(it));
       break;
   }
 
@@ -166,7 +170,7 @@ const SchemaForm: React.FC<{
             value={node.type}
             onChange={(e) => onChange({ ...node, type: e.target.value as SchemaNode['type'] })}
           >
-            {['string', 'boolean', 'number', 'integer', 'object', 'array', 'const', 'null'].map((type) => (
+            {['string', 'boolean', 'number', 'integer', 'object', 'array', 'const', 'enum', 'null'].map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </Form.Select>
@@ -397,6 +401,47 @@ const SchemaForm: React.FC<{
           </Form.Group>
         </>
       )}
+
+      {node.type === 'enum' && node.enum?.map((it, index) => (
+        <>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Enum Item</InputGroup.Text>
+              <Form.Control
+                value={it || ''}
+                onChange={(e) => {
+                  const newEnum = [...(node.enum || [])]
+                  newEnum[index] = e.target.value
+                  onChange({ ...node, enum: newEnum })
+                }}
+              />
+              <Button
+                variant="outline-danger"
+                onClick={() => {
+                  const newEnum = node.enum?.filter((_, i) => i !== index);
+                  onChange({ ...node, enum: newEnum });
+                }}
+              >
+                -
+              </Button>
+            </InputGroup>
+          </Form.Group>
+        </>
+      ))}
+      {node.type === 'enum' && (
+        <>
+          <Button
+            variant="outline-success"
+            onClick={() => {
+              const newEnum = [...(node.enum || [])]
+              newEnum.push('')
+              onChange({ ...node, enum: newEnum });
+            }}
+          >
+            +
+          </Button>
+        </>
+      )}
     </div>
   );
 };
@@ -406,7 +451,7 @@ const App: React.FC = () => {
   const [textSchema, setTextSchema] = useState<string>('');
   const [validationData, setValidationData] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [textSchemaValidationErrors, setTextSchemaValidationErrors] = useState<string[]>([]);
+  const [schemaValidationErrors, setSchemaValidationErrors] = useState<string[]>([]);
   const settings = loadSettings();
   const [isWordWrapEnabled, setIsWordWrapEnabled] = useState(true);
   const [isWordWrapInputEnabled, setIsWordWrapInputEnabled] = useState(true);
@@ -450,6 +495,8 @@ const App: React.FC = () => {
 
     if ('const' in json) {
       type = 'const';
+    } else if ('enum' in json) {
+      type = 'enum';
     } else if (Array.isArray(json.type)) {
       const types = json.type.filter((t: string) => t !== 'null');
       type = types[0] || 'null';
@@ -493,6 +540,15 @@ const App: React.FC = () => {
       case 'const':
         baseNode.const = JSON.stringify(json.const);
         break;
+      case 'enum':
+        const jsonEnum = json.enum;
+        baseNode.enum = []
+        if (jsonEnum && typeof jsonEnum[Symbol.iterator] === 'function') {
+          for (let jsonEnumItem of jsonEnum) {
+            baseNode.enum.push(JSON.stringify(jsonEnumItem))
+          }
+        }
+        break;
     }
 
     return baseNode;
@@ -500,20 +556,25 @@ const App: React.FC = () => {
 
   const changeEditorMode = (mode: 'builder' | 'ace') => {
     if (mode === 'ace') {
-      setTextSchema(
-        JSON.stringify(convertToJsonSchema(rootSchema), null, 4)
-      )
-      setEditorMode(mode)
+      try {
+        const json = convertToJsonSchema(rootSchema);
+        setTextSchema(JSON.stringify(json, null, 4));
+        setEditorMode(mode);
+        setSchemaValidationErrors([])
+      } catch (error) {
+        console.error(`Invalid JSON Schema`, error);
+        setSchemaValidationErrors([`${error}`])
+      }
     } else {
       try {
         const parsed = JSON.parse(textSchema);
         const converted = parseJsonSchema(parsed);
         setRootSchema(converted);
         setEditorMode(mode)
-        setTextSchemaValidationErrors([])
+        setSchemaValidationErrors([])
       } catch (error) {
         console.error(`Invalid JSON Schema`, error);
-        setTextSchemaValidationErrors([`${error}`])
+        setSchemaValidationErrors([`${error}`])
       }
     }
   }
@@ -552,58 +613,56 @@ const App: React.FC = () => {
           {editorMode === 'builder' ? (
             <SchemaForm node={rootSchema} onChange={setRootSchema} />
           ) : (
-            <>
-              <Container>
-                <ButtonGroup className={'float-end'}>
-                  <Button
-                    variant="primary"
-                    active={isWordWrapEnabled}
-                    title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
-                    onClick={() => setIsWordWrapEnabled((prev) => !prev)}
-                  >
-                    <TextWrapIcon />
-                  </Button>
-                </ButtonGroup>
-                <AceEditor
-                  mode={'json'}
-                  theme={settings['aceTheme'].value}
-                  name={`schema-representation`}
-                  value={textSchema}
-                  onChange={setTextSchema}
-                  className={`rounded border ${(textSchemaValidationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
-                  style={{
-                    resize: 'vertical',
-                    overflow: 'auto',
-                    height: '480px',
-                    minHeight: '200px',
-                  }}
-                  fontSize={14}
-                  width="100%"
-                  height="480px"
-                  showPrintMargin={true}
-                  showGutter={true}
-                  highlightActiveLine={true}
-                  wrapEnabled={isWordWrapEnabled}
-                  setOptions={{
-                    showLineNumbers: true,
-                    wrap: isWordWrapEnabled,
-                    useWorker: false,
-                  }}
-                  editorProps={{ $blockScrolling: true }}
-                />
-              </Container>
-              {textSchemaValidationErrors.length > 0 && (
-                <div className="mt-3">
-                  {textSchemaValidationErrors.map((error, i) => (
-                    <Alert key={i} variant="danger" className="py-1 my-1">
-                      {error}
-                    </Alert>
-                  ))}
-                </div>
-              )}
-            </>
+            <Container>
+              <ButtonGroup className={'float-end'}>
+                <Button
+                  variant="primary"
+                  active={isWordWrapEnabled}
+                  title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
+                  onClick={() => setIsWordWrapEnabled((prev) => !prev)}
+                >
+                  <TextWrapIcon />
+                </Button>
+              </ButtonGroup>
+              <AceEditor
+                mode={'json'}
+                theme={settings['aceTheme'].value}
+                name={`schema-representation`}
+                value={textSchema}
+                onChange={setTextSchema}
+                className={`rounded border ${(schemaValidationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
+                style={{
+                  resize: 'vertical',
+                  overflow: 'auto',
+                  height: '480px',
+                  minHeight: '200px',
+                }}
+                fontSize={14}
+                width="100%"
+                height="480px"
+                showPrintMargin={true}
+                showGutter={true}
+                highlightActiveLine={true}
+                wrapEnabled={isWordWrapEnabled}
+                setOptions={{
+                  showLineNumbers: true,
+                  wrap: isWordWrapEnabled,
+                  useWorker: false,
+                }}
+                editorProps={{ $blockScrolling: true }}
+              />
+            </Container>
           )
           }
+          {schemaValidationErrors.length > 0 && (
+            <div className="mt-3">
+              {schemaValidationErrors.map((error, i) => (
+                <Alert key={i} variant="danger" className="py-1 my-1">
+                  {error}
+                </Alert>
+              ))}
+            </div>
+          )}
         </Col>
         <Col md={6}>
           <Container>
