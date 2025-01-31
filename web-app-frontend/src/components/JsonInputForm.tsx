@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Container } from 'react-bootstrap';
-import { CheckmarkSquare01Icon, TextWrapIcon } from 'hugeicons-react';
+import { AiBeautifyIcon, CheckmarkSquare01Icon, TextWrapIcon } from 'hugeicons-react';
 import AceEditor from 'react-ace';
 import React, { useState } from 'react';
 import Ajv from 'ajv';
@@ -56,15 +56,32 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
     }
   };
 
+  const beautifyData = () => {
+    try {
+      const dataToValidate = JSON.parse(validationData);
+      setValidationData(JSON.stringify(dataToValidate, null, 4));
+      setValidationErrors([]);
+    } catch (e) {
+      setValidationErrors([`Invalid JSON: ${(e as Error).message}`]);
+    }
+  };
+
   return (
     <Container>
       <ButtonGroup className={'float-end'}>
         <Button
-          variant="outline-primary"
+          variant="outline-success"
           title={'Validate'}
           onClick={validateAgainstSchema}
         >
           <CheckmarkSquare01Icon />
+        </Button>
+        <Button
+          variant="outline-secondary"
+          title={'Beautify'}
+          onClick={beautifyData}
+        >
+          <AiBeautifyIcon />
         </Button>
         <Button
           variant="primary"
