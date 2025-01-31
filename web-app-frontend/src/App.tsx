@@ -461,21 +461,38 @@ const App: React.FC = () => {
     <Container className="my-4">
       <Row>
         <Col md={6}>
-          <h3 className="mb-4">JSON Schema Builder</h3>
-          <ButtonGroup className="mb-2">
-            <Button variant={editorMode === 'builder' ? 'primary' : 'secondary'}
-                    onClick={() => changeEditorMode('builder')}>
-              Builder
-            </Button>
-            <Button variant={editorMode === 'ace' ? 'primary' : 'secondary'} onClick={() => changeEditorMode('ace')}>
-              Text Editor
-            </Button>
-          </ButtonGroup>
+          <Row className="mb-4">
+            <Col md={8}>
+              <h3>JSON Schema Builder</h3>
+            </Col>
+            <Col md={4}>
+              <ButtonGroup className="mb-2">
+                <Button variant={editorMode === 'builder' ? 'primary' : 'secondary'}
+                        onClick={() => changeEditorMode('builder')}>
+                  Builder
+                </Button>
+                <Button variant={editorMode === 'ace' ? 'primary' : 'secondary'}
+                        onClick={() => changeEditorMode('ace')}>
+                  Text Editor
+                </Button>
+              </ButtonGroup>
+            </Col>
+          </Row>
+        </Col>
+        <Col md={6}>
+          <Row className="mb-4">
+            <h3>Validation</h3>
+          </Row>
+        </Col>
+      </Row>
+
+      <Row>
+        <Col md={6}>
           {editorMode === 'builder' ? (
             <SchemaForm node={rootSchema} onChange={setRootSchema} />
           ) : (
             <>
-              <div>
+              <Container>
                 <ButtonGroup className={'float-end'}>
                   <Button
                     variant="primary"
@@ -513,7 +530,7 @@ const App: React.FC = () => {
                   }}
                   editorProps={{ $blockScrolling: true }}
                 />
-              </div>
+              </Container>
               {textSchemaValidationErrors.length > 0 && (
                 <div className="mt-3">
                   {textSchemaValidationErrors.map((error, i) => (
@@ -528,66 +545,63 @@ const App: React.FC = () => {
           }
         </Col>
         <Col md={6}>
-          <div className="mb-4">
-            <h3>Validation</h3>
-            <div>
-              <ButtonGroup className={'float-end'}>
-                <Button
-                  variant="outline-primary"
-                  title={'Validate'}
-                  onClick={validateAgainstSchema}
-                >
-                  <CheckmarkSquare01Icon />
-                </Button>
-                <Button
-                  variant="primary"
-                  active={isWordWrapInputEnabled}
-                  title={isWordWrapInputEnabled ? 'Unwrap' : 'Wrap'}
-                  onClick={() => setIsWordWrapInputEnabled((prev) => !prev)}
-                >
-                  <TextWrapIcon />
-                </Button>
-              </ButtonGroup>
-              <AceEditor
-                mode={'json'}
-                theme={settings['aceTheme'].value}
-                name={`json-input`}
-                value={validationData}
-                onChange={(value) => setValidationData(value)}
-                className={`rounded border ${(validationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
-                placeholder="Enter JSON to validate"
-                style={{
-                  resize: 'vertical',
-                  overflow: 'auto',
-                  height: '480px',
-                  minHeight: '200px',
-                }}
-                fontSize={14}
-                width="100%"
-                height="480px"
-                showPrintMargin={true}
-                showGutter={true}
-                highlightActiveLine={true}
-                wrapEnabled={isWordWrapInputEnabled}
-                setOptions={{
-                  showLineNumbers: true,
-                  wrap: isWordWrapInputEnabled,
-                  useWorker: false,
-                }}
-                editorProps={{ $blockScrolling: true }}
-              />
-            </div>
+          <Container>
+            <ButtonGroup className={'float-end'}>
+              <Button
+                variant="outline-primary"
+                title={'Validate'}
+                onClick={validateAgainstSchema}
+              >
+                <CheckmarkSquare01Icon />
+              </Button>
+              <Button
+                variant="primary"
+                active={isWordWrapInputEnabled}
+                title={isWordWrapInputEnabled ? 'Unwrap' : 'Wrap'}
+                onClick={() => setIsWordWrapInputEnabled((prev) => !prev)}
+              >
+                <TextWrapIcon />
+              </Button>
+            </ButtonGroup>
+            <AceEditor
+              mode={'json'}
+              theme={settings['aceTheme'].value}
+              name={`json-input`}
+              value={validationData}
+              onChange={(value) => setValidationData(value)}
+              className={`rounded border ${(validationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
+              placeholder="Enter JSON to validate"
+              style={{
+                resize: 'vertical',
+                overflow: 'auto',
+                height: '480px',
+                minHeight: '200px',
+              }}
+              fontSize={14}
+              width="100%"
+              height="480px"
+              showPrintMargin={true}
+              showGutter={true}
+              highlightActiveLine={true}
+              wrapEnabled={isWordWrapInputEnabled}
+              setOptions={{
+                showLineNumbers: true,
+                wrap: isWordWrapInputEnabled,
+                useWorker: false,
+              }}
+              editorProps={{ $blockScrolling: true }}
+            />
+          </Container>
 
-            {validationErrors.length > 0 && (
-              <div className="mt-3">
-                {validationErrors.map((error, i) => (
-                  <Alert key={i} variant="danger" className="py-1 my-1">
-                    {error}
-                  </Alert>
-                ))}
-              </div>
-            )}
-          </div>
+          {validationErrors.length > 0 && (
+            <div className="mt-3">
+              {validationErrors.map((error, i) => (
+                <Alert key={i} variant="danger" className="py-1 my-1">
+                  {error}
+                </Alert>
+              ))}
+            </div>
+          )}
         </Col>
       </Row>
 
