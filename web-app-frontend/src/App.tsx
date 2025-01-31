@@ -345,6 +345,7 @@ const SchemaForm: React.FC<{
 
 const App: React.FC = () => {
   const [rootSchema, setRootSchema] = useState<SchemaNode>(initialSchema);
+  const [textSchema, setTextSchema] = useState<string>('');
   const [validationData, setValidationData] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const settings = loadSettings();
@@ -386,6 +387,15 @@ const App: React.FC = () => {
     }
   };
 
+  const changeEditorMode = (mode: 'builder' | 'ace') => {
+    if(mode === 'ace') {
+      setTextSchema(
+        JSON.stringify(convertToJsonSchema(rootSchema), null, 4)
+      )
+    }
+    setEditorMode(mode)
+  }
+
   return (
     <Container className="my-4">
       <Row>
@@ -393,10 +403,10 @@ const App: React.FC = () => {
           <h3 className="mb-4">JSON Schema Builder</h3>
           <ButtonGroup className="mb-2">
             <Button variant={editorMode === 'builder' ? 'primary' : 'secondary'}
-                    onClick={() => setEditorMode('builder')}>
+                    onClick={() => changeEditorMode('builder')}>
               Builder
             </Button>
-            <Button variant={editorMode === 'ace' ? 'primary' : 'secondary'} onClick={() => setEditorMode('ace')}>
+            <Button variant={editorMode === 'ace' ? 'primary' : 'secondary'} onClick={() => changeEditorMode('ace')}>
               Text Editor
             </Button>
           </ButtonGroup>
@@ -418,7 +428,8 @@ const App: React.FC = () => {
                 mode={'json'}
                 theme={settings['aceTheme'].value}
                 name={`schema-representation`}
-                value={JSON.stringify(convertToJsonSchema(rootSchema), null, 4)}
+                value={textSchema}
+                onChange={setTextSchema}
                 className={'rounded'}
                 style={{
                   resize: 'vertical',
@@ -437,7 +448,6 @@ const App: React.FC = () => {
                   showLineNumbers: true,
                   wrap: isWordWrapEnabled,
                   useWorker: false,
-                  readOnly: true,
                 }}
                 editorProps={{ $blockScrolling: true }}
               />
