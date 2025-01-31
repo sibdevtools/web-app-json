@@ -1,4 +1,12 @@
-import { initialSchema, SchemaNode } from '../components/SchemaFormBuilder';
+import { initialSchema } from '../components/SchemaFormBuilder';
+import {
+  ArraySchemaNode,
+  BaseSchemaNode,
+  NumberSchemaNode,
+  ObjectSchemaNode,
+  SchemaNode,
+  StringSchemaNode
+} from '../const/type';
 
 export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): any {
   const baseType = node.type === 'null' ? 'null' : node.type;
@@ -16,25 +24,28 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
   if (node.nodeType === 'simple') {
     switch (node.type) {
       case 'string':
-        if (node.minLength !== undefined) schema.minLength = node.minLength;
-        if (node.maxLength !== undefined) schema.maxLength = node.maxLength;
-        if (node.pattern) schema.pattern = node.pattern;
-        if (node.format) schema.format = node.format;
+        const stringNode = node as StringSchemaNode;
+        if (stringNode.minLength !== undefined) schema.minLength = stringNode.minLength;
+        if (stringNode.maxLength !== undefined) schema.maxLength = stringNode.maxLength;
+        if (stringNode.pattern) schema.pattern = stringNode.pattern;
+        if (stringNode.format) schema.format = stringNode.format;
         break;
       case 'integer':
       case 'number':
-        if (node.minimum !== undefined) schema.minimum = node.minimum;
-        if (node.maximum !== undefined) schema.maximum = node.maximum;
+        const numberNode = node as NumberSchemaNode;
+        if (numberNode.minimum !== undefined) schema.minimum = numberNode.minimum;
+        if (numberNode.maximum !== undefined) schema.maximum = numberNode.maximum;
         break;
       case 'object':
-        schema.additionalProperties = node.additionalProperties;
-        if (node.properties) {
-          schema.properties = node.properties.reduce((acc, prop) => {
+        const objectNode = node as ObjectSchemaNode;
+        schema.additionalProperties = objectNode.additionalProperties;
+        if (objectNode.properties) {
+          schema.properties = objectNode.properties.reduce((acc, prop) => {
             acc[prop.name] = convertToJsonSchema(prop.schema);
             return acc;
           }, {} as Record<string, any>);
 
-          const required = node.properties
+          const required = objectNode.properties
             .filter(prop => prop.required)
             .map(prop => prop.name);
           if (required.length > 0) {
@@ -43,9 +54,10 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
         }
         break;
       case 'array':
-        if (node.items) schema.items = convertToJsonSchema(node.items);
-        if (node.minItems !== undefined) schema.minItems = node.minItems;
-        if (node.maxItems !== undefined) schema.maxItems = node.maxItems;
+        const arrayNode = node as ArraySchemaNode;
+        if (arrayNode.items) schema.items = convertToJsonSchema(arrayNode.items);
+        if (arrayNode.minItems !== undefined) schema.minItems = arrayNode.minItems;
+        if (arrayNode.maxItems !== undefined) schema.maxItems = arrayNode.maxItems;
         break;
     }
 
@@ -103,41 +115,14 @@ export function parseJsonSchema(json: any): SchemaNode {
     specification = 'reference'
   }
 
-  const baseNode: SchemaNode = {
+  const baseNode: BaseSchemaNode = {
     nodeType,
     type,
     specification,
     nullable,
     title: json.title || '',
     description: json.description || '',
-    additionalProperties: json.additionalProperties ?? true,
   };
-
-  switch (type) {
-    case 'string':
-      baseNode.minLength = json.minLength;
-      baseNode.maxLength = json.maxLength;
-      baseNode.pattern = json.pattern;
-      baseNode.format = json.format;
-      break;
-    case 'integer':
-    case 'number':
-      baseNode.minimum = json.minimum;
-      baseNode.maximum = json.maximum;
-      break;
-    case 'object':
-      baseNode.properties = Object.entries(json.properties || {}).map(([name, prop]) => ({
-        name,
-        required: (json.required || []).includes(name),
-        schema: parseJsonSchema(prop)
-      }));
-      break;
-    case 'array':
-      baseNode.items = json.items ? parseJsonSchema(json.items) : initialSchema;
-      baseNode.minItems = json.minItems;
-      baseNode.maxItems = json.maxItems;
-      break;
-  }
 
   switch (specification) {
     case 'const':
@@ -173,6 +158,41 @@ export function parseJsonSchema(json: any): SchemaNode {
       definitions[name] = parseJsonSchema(defJson);
     }
     baseNode.definitions = definitions;
+  }
+
+  switch (type) {
+    case 'string':
+      return {
+        ...baseNode,
+        minLength: json.minLength,
+        maxLength: json.maxLength,
+        pattern: json.pattern,
+        format: json.format,
+      } as StringSchemaNode
+    case 'integer':
+    case 'number':
+      return {
+        ...baseNode,
+        minimum: json.minimum,
+        maximum: json.maximum,
+      } as NumberSchemaNode
+    case 'object':
+      return {
+        ...baseNode,
+        additionalProperties: json.additionalProperties,
+        properties: Object.entries(json.properties || {}).map(([name, prop]) => ({
+          name,
+          required: (json.required || []).includes(name),
+          schema: parseJsonSchema(prop)
+        }))
+      } as ObjectSchemaNode
+    case 'array':
+      return {
+        ...baseNode,
+        items: json.items ? parseJsonSchema(json.items) : initialSchema,
+        minItems: json.minItems,
+        maxItems: json.maxItems,
+      } as ArraySchemaNode
   }
 
   return baseNode;

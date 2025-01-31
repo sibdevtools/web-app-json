@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Alert, Button, ButtonGroup, Col, Container, Row } from 'react-bootstrap';
 
 import SchemaTextEditor from './components/SchemaTextEditor';
-import SchemaFormBuilder, { initialSchema, SchemaNode } from './components/SchemaFormBuilder';
+import SchemaFormBuilder, { initialSchema } from './components/SchemaFormBuilder';
 import { convertToJsonSchema, parseJsonSchema } from './utils/converter';
 import JsonInputForm from './components/JsonInputForm';
+import { SchemaNode } from './const/type';
 
 const App: React.FC = () => {
   const [rootSchema, setRootSchema] = useState<SchemaNode>(initialSchema);
