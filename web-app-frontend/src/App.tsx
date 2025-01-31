@@ -31,7 +31,8 @@ const buildInFormats = [
 ]
 
 interface SchemaNode {
-  type: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'const' | 'enum' | 'null';
+  type: 'undefined' | 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'null';
+  specification: 'none' | 'enum' | 'const'
   nullable: boolean;
   title: string;
   description: string;
@@ -56,6 +57,7 @@ interface SchemaNode {
 
 const initialSchema: SchemaNode = {
   type: 'string',
+  specification: 'none',
   nullable: false,
   title: '',
   description: '',
@@ -71,7 +73,7 @@ function convertToJsonSchema(node: SchemaNode): any {
     description: node.description || undefined,
   };
 
-  if (type !== 'const' && type !== 'enum') {
+  if (baseType !== 'undefined') {
     schema.type = type;
   }
 
@@ -108,6 +110,9 @@ function convertToJsonSchema(node: SchemaNode): any {
       if (node.minItems !== undefined) schema.minItems = node.minItems;
       if (node.maxItems !== undefined) schema.maxItems = node.maxItems;
       break;
+  }
+
+  switch (node.specification) {
     case 'const':
       if (node.const) schema.const = JSON.parse(node.const);
       break;
@@ -170,20 +175,35 @@ const SchemaForm: React.FC<{
             value={node.type}
             onChange={(e) => onChange({ ...node, type: e.target.value as SchemaNode['type'] })}
           >
-            {['string', 'boolean', 'number', 'integer', 'object', 'array', 'const', 'enum', 'null'].map((type) => (
+            {['undefined', 'string', 'boolean', 'number', 'integer', 'object', 'array', 'const', 'enum', 'null'].map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </Form.Select>
           <InputGroup.Text>
-
             <Form.Check
               type="checkbox"
               label="Nullable"
               checked={node.nullable}
               onChange={(e) => onChange({ ...node, nullable: e.target.checked })}
-              disabled={node.type === 'null'}
+              disabled={node.type === 'null' || node.type === 'undefined'}
             />
           </InputGroup.Text>
+        </InputGroup>
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <InputGroup>
+          <InputGroup.Text>
+            Specification
+          </InputGroup.Text>
+          <Form.Select
+            value={node.specification}
+            onChange={(e) => onChange({ ...node, specification: e.target.value as SchemaNode['specification'] })}
+          >
+            {['none', 'const', 'enum'].map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </Form.Select>
         </InputGroup>
       </Form.Group>
 
@@ -388,7 +408,7 @@ const SchemaForm: React.FC<{
         </Accordion>
       )}
 
-      {node.type === 'const' && (
+      {node.specification === 'const' && (
         <>
           <Form.Group className="mb-3">
             <InputGroup>
@@ -402,7 +422,7 @@ const SchemaForm: React.FC<{
         </>
       )}
 
-      {node.type === 'enum' && node.enum?.map((it, index) => (
+      {node.specification === 'enum' && node.enum?.map((it, index) => (
         <>
           <Form.Group className="mb-3">
             <InputGroup>
@@ -428,7 +448,7 @@ const SchemaForm: React.FC<{
           </Form.Group>
         </>
       ))}
-      {node.type === 'enum' && (
+      {node.specification === 'enum' && (
         <>
           <Button
             variant="outline-success"
@@ -490,14 +510,11 @@ const App: React.FC = () => {
   };
 
   function parseJsonSchema(json: any): SchemaNode {
-    let type: SchemaNode['type'] = 'string';
+    let type: SchemaNode['type'] = 'undefined';
+    let specification: SchemaNode['specification'] = 'none';
     let nullable = false;
 
-    if ('const' in json) {
-      type = 'const';
-    } else if ('enum' in json) {
-      type = 'enum';
-    } else if (Array.isArray(json.type)) {
+    if (Array.isArray(json.type)) {
       const types = json.type.filter((t: string) => t !== 'null');
       type = types[0] || 'null';
       nullable = json.type.includes('null');
@@ -505,8 +522,15 @@ const App: React.FC = () => {
       type = json.type as SchemaNode['type'];
     }
 
+    if ('const' in json) {
+      specification = 'const'
+    } else if ('enum' in json) {
+      specification = 'enum'
+    }
+
     const baseNode: SchemaNode = {
       type,
+      specification,
       nullable,
       title: json.title || '',
       description: json.description || '',
@@ -537,6 +561,9 @@ const App: React.FC = () => {
         baseNode.minItems = json.minItems;
         baseNode.maxItems = json.maxItems;
         break;
+    }
+
+    switch (specification) {
       case 'const':
         baseNode.const = JSON.stringify(json.const);
         break;
