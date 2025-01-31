@@ -1,5 +1,6 @@
 import React from 'react';
 import { Accordion, Button, Form, InputGroup } from 'react-bootstrap';
+import { Add01Icon, Delete01Icon } from 'hugeicons-react';
 
 
 const buildInFormats = [
@@ -20,9 +21,19 @@ const buildInFormats = [
   'regex'
 ]
 
+function renameField(obj: Record<string, SchemaNode>, oldKey: string, newKey: string): Record<string, SchemaNode> {
+  if (oldKey in obj) {
+    const { [oldKey]: value, ...rest } = obj;
+    return { ...rest, [newKey]: value };
+  }
+  return obj;
+}
+
 export interface SchemaNode {
   type: 'undefined' | 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'null';
-  specification: 'none' | 'enum' | 'const'
+  specification: 'none' | 'enum' | 'const' | 'reference';
+  reference?: string;
+  definitions?: Record<string, SchemaNode>;
   nullable: boolean;
   title: string;
   description: string;
@@ -58,7 +69,9 @@ export const initialSchema: SchemaNode = {
 const SchemaFormBuilder: React.FC<{
   node: SchemaNode;
   onChange: (newNode: SchemaNode) => void;
-}> = ({ node, onChange }) => {
+  rootDefinitions?: Record<string, SchemaNode>;
+  isRoot?: boolean;
+}> = ({ node, onChange, rootDefinitions, isRoot = false }) => {
   const handleNumberChange = (field: 'minimum' | 'maximum', value: string) => {
     const numericValue = value === '' ? undefined : Number(value);
     const updates: Partial<SchemaNode> = { [field]: numericValue };
@@ -106,7 +119,7 @@ const SchemaFormBuilder: React.FC<{
             value={node.type}
             onChange={(e) => onChange({ ...node, type: e.target.value as SchemaNode['type'] })}
           >
-            {['undefined', 'string', 'boolean', 'number', 'integer', 'object', 'array', 'const', 'enum', 'null'].map((type) => (
+            {['undefined', 'string', 'boolean', 'number', 'integer', 'object', 'array', 'null'].map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </Form.Select>
@@ -131,7 +144,7 @@ const SchemaFormBuilder: React.FC<{
             value={node.specification}
             onChange={(e) => onChange({ ...node, specification: e.target.value as SchemaNode['specification'] })}
           >
-            {['none', 'const', 'enum'].map((type) => (
+            {['none', 'const', 'enum', 'reference'].map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </Form.Select>
@@ -260,6 +273,15 @@ const SchemaFormBuilder: React.FC<{
                                   }}
                                 />
                               </InputGroup.Text>
+                              <Button
+                                variant="danger"
+                                onClick={() => {
+                                  const newProperties = node.properties?.filter((_, i) => i !== index);
+                                  onChange({ ...node, properties: newProperties });
+                                }}
+                              >
+                                <Delete01Icon />
+                              </Button>
                             </InputGroup>
                           </div>
                           <SchemaFormBuilder
@@ -269,24 +291,15 @@ const SchemaFormBuilder: React.FC<{
                               newProperties[index].schema = newSchema;
                               onChange({ ...node, properties: newProperties });
                             }}
+                            rootDefinitions={rootDefinitions}
                           />
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            onClick={() => {
-                              const newProperties = node.properties?.filter((_, i) => i !== index);
-                              onChange({ ...node, properties: newProperties });
-                            }}
-                          >
-                            Remove Property
-                          </Button>
                         </div>
                       </Accordion.Body>
                     </Accordion.Item>
                   </Accordion>
                 ))}
                 <Button
-                  variant="secondary"
+                  variant="outline-success"
                   size="sm"
                   onClick={() => onChange({
                     ...node,
@@ -297,7 +310,7 @@ const SchemaFormBuilder: React.FC<{
                     }]
                   })}
                 >
-                  Add Property
+                  <Add01Icon />
                 </Button>
               </Accordion.Body>
             </Accordion.Item>
@@ -313,6 +326,7 @@ const SchemaFormBuilder: React.FC<{
               <SchemaFormBuilder
                 node={node.items || initialSchema}
                 onChange={(items) => onChange({ ...node, items })}
+                rootDefinitions={rootDefinitions}
               />
               <Form.Group className="mb-3">
                 <InputGroup>
@@ -392,6 +406,96 @@ const SchemaFormBuilder: React.FC<{
             +
           </Button>
         </>
+      )}
+
+      {node.specification === 'reference' && (
+        <Form.Group className="mb-3">
+          <InputGroup>
+            <InputGroup.Text>Reference</InputGroup.Text>
+            <Form.Control
+              value={node.reference || ''}
+              list={'reference-suggestions'}
+              onChange={(e) => onChange({ ...node, reference: e.target.value })}
+            />
+            <datalist id="reference-suggestions">
+              {
+                Object.keys(rootDefinitions || {})
+                  .map(it => `#/$defs/${it}`)
+                  .map(it => <option key={it} value={it} />)
+              }
+            </datalist>
+          </InputGroup>
+        </Form.Group>
+      )}
+
+      {isRoot && (
+        <Accordion className="mt-3">
+          <Accordion.Item eventKey="definitions">
+            <Accordion.Header>Definitions</Accordion.Header>
+            <Accordion.Body>
+              <Accordion className="mb-3">
+                {Object.entries(node.definitions || {}).map(([name, defNode], index) => (
+                  <Accordion.Item eventKey={`definition-${index}`}>
+                    <Accordion.Header>{name}</Accordion.Header>
+                    <Accordion.Body>
+                      <div key={`definition-${index}`} className="border p-3 mb-3">
+                        <Form.Group className="mb-3">
+                          <InputGroup>
+                            <InputGroup.Text>Name</InputGroup.Text>
+                            <Form.Control
+                              value={name}
+                              onChange={(e) => {
+                                const newDefinitions = renameField(node.definitions || {}, name, e.target.value)
+                                onChange({ ...node, definitions: newDefinitions });
+                              }}
+                            />
+                            <Button
+                              variant="danger"
+                              onClick={() => {
+                                const newDefinitions = { ...node.definitions };
+                                delete newDefinitions[name];
+                                onChange({ ...node, definitions: newDefinitions });
+                              }}
+                            >
+                              <Delete01Icon />
+                            </Button>
+                          </InputGroup>
+                        </Form.Group>
+                        <Accordion className="mt-3">
+                          <Accordion.Item eventKey={`definition-${index}-internals`}>
+                            <Accordion.Header>Definition</Accordion.Header>
+                            <Accordion.Body>
+                              <SchemaFormBuilder
+                                node={defNode}
+                                onChange={(newDefNode) => {
+                                  const newDefinitions = { ...node.definitions };
+                                  newDefinitions[name] = newDefNode;
+                                  onChange({ ...node, definitions: newDefinitions });
+                                }}
+                                rootDefinitions={rootDefinitions}
+                              />
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        </Accordion>
+                      </div>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                ))}
+              </Accordion>
+              <Button
+                variant="outline-success"
+                size="sm"
+                onClick={() => {
+                  const newName = `definition${Object.keys(node.definitions || {}).length + 1}`;
+                  const newDefinitions = { ...node.definitions || {}, [newName]: initialSchema };
+                  onChange({ ...node, definitions: newDefinitions });
+                }}
+              >
+                <Add01Icon />
+              </Button>
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
       )}
     </div>
   );

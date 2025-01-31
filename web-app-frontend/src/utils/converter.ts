@@ -1,6 +1,6 @@
 import { initialSchema, SchemaNode } from '../components/SchemaFormBuilder';
 
-export function convertToJsonSchema(node: SchemaNode): any {
+export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): any {
   const baseType = node.type === 'null' ? 'null' : node.type;
   const type = node.nullable ? ['null', baseType] : baseType;
 
@@ -55,6 +55,18 @@ export function convertToJsonSchema(node: SchemaNode): any {
     case 'enum':
       if (node.enum) schema.enum = node.enum?.map(it => JSON.parse(it));
       break;
+    case 'reference':
+      if (node.reference) {
+        schema.$ref = node.reference;
+      }
+      break;
+  }
+
+  if (isRoot && node.definitions) {
+    schema.$defs = Object.entries(node.definitions).reduce((acc, [name, defNode]) => {
+      acc[name] = convertToJsonSchema(defNode);
+      return acc;
+    }, {} as Record<string, any>);
   }
 
   return schema;
@@ -78,6 +90,8 @@ export function parseJsonSchema(json: any): SchemaNode {
     specification = 'const'
   } else if ('enum' in json) {
     specification = 'enum'
+  } else if ('$ref' in json) {
+    specification = 'reference'
   }
 
   const baseNode: SchemaNode = {
@@ -128,6 +142,17 @@ export function parseJsonSchema(json: any): SchemaNode {
         }
       }
       break;
+    case 'reference':
+      baseNode.reference = json['$ref']
+      break;
+  }
+
+  if (json.$defs) {
+    const definitions: Record<string, SchemaNode> = {};
+    for (const [name, defJson] of Object.entries(json.$defs)) {
+      definitions[name] = parseJsonSchema(defJson);
+    }
+    baseNode.definitions = definitions;
   }
 
   return baseNode;

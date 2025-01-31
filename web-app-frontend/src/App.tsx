@@ -9,6 +9,7 @@ import JsonInputForm from './components/JsonInputForm';
 const App: React.FC = () => {
   const [rootSchema, setRootSchema] = useState<SchemaNode>(initialSchema);
   const [textSchema, setTextSchema] = useState<string>('');
+  const [rootDefinitions, setRootDefinitions] = useState<Record<string, SchemaNode>>({});
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [schemaValidationErrors, setSchemaValidationErrors] = useState<string[]>([]);
   const [editorMode, setEditorMode] = useState<'builder' | 'ace'>('builder');
@@ -16,7 +17,7 @@ const App: React.FC = () => {
   const changeEditorMode = (mode: 'builder' | 'ace') => {
     if (mode === 'ace') {
       try {
-        const json = convertToJsonSchema(rootSchema);
+        const json = convertToJsonSchema(rootSchema, true);
         setTextSchema(JSON.stringify(json, null, 4));
         setEditorMode(mode);
         setSchemaValidationErrors([])
@@ -28,6 +29,7 @@ const App: React.FC = () => {
       try {
         const parsed = JSON.parse(textSchema);
         const converted = parseJsonSchema(parsed);
+        setRootDefinitions(converted.definitions || {})
         setRootSchema(converted);
         setEditorMode(mode)
         setSchemaValidationErrors([])
@@ -35,6 +37,18 @@ const App: React.FC = () => {
         console.error(`Invalid JSON Schema`, error);
         setSchemaValidationErrors([`${error}`])
       }
+    }
+  }
+
+  function jsonSchemaProvider() {
+    try {
+      if (editorMode === 'builder') {
+        return convertToJsonSchema(rootSchema, true)
+      }
+      return textSchema ? JSON.parse(textSchema) : {}
+    } catch (error) {
+      console.error(`Invalid JSON Schema`, error);
+      setSchemaValidationErrors([`${error}`])
     }
   }
 
@@ -70,7 +84,11 @@ const App: React.FC = () => {
       <Row>
         <Col md={6}>
           {editorMode === 'builder' ? (
-            <SchemaFormBuilder node={rootSchema} onChange={setRootSchema} />
+            <SchemaFormBuilder
+              node={rootSchema}
+              onChange={setRootSchema}
+              rootDefinitions={rootDefinitions}
+              isRoot={true} />
           ) : (
             <SchemaTextEditor
               textSchema={textSchema}
@@ -89,7 +107,7 @@ const App: React.FC = () => {
           )}
         </Col>
         <Col md={6}>
-          <JsonInputForm jsonSchemaProvider={() => convertToJsonSchema(rootSchema)}
+          <JsonInputForm jsonSchemaProvider={jsonSchemaProvider}
                          validationErrors={validationErrors}
                          setValidationErrors={setValidationErrors} />
 
