@@ -28,7 +28,10 @@ export interface StringSchemaNode extends BaseSchemaNode {
 export interface NumberSchemaNode extends BaseSchemaNode {
   type: 'number' | 'integer';
   minimum?: number;
+  exclusiveMinimum?: number;
   maximum?: number;
+  exclusiveMaximum?: number;
+  multipleOf?: number;
 }
 
 // Interface for object type schema nodes
@@ -37,6 +40,10 @@ export interface ObjectSchemaNode extends BaseSchemaNode {
   properties?: Array<{
     name: string;
     required: boolean;
+    schema: SchemaNode;
+  }>;
+  patternProperties?: Array<{
+    name: string;
     schema: SchemaNode;
   }>;
   additionalProperties?: boolean;

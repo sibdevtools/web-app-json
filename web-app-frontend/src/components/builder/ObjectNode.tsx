@@ -103,6 +103,71 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
+
+      <Accordion defaultActiveKey="0" className="mb-3">
+        <Accordion.Item eventKey="patternProperties">
+          <Accordion.Header>Pattern Properties</Accordion.Header>
+          <Accordion.Body>
+            {node.patternProperties?.map((prop, index) => (
+              <Accordion key={index} className="mb-3">
+                <Accordion.Item eventKey={String(index)}>
+                  <Accordion.Header>
+                    {prop.name || 'Unnamed Property'} ({prop.schema.type})
+                  </Accordion.Header>
+                  <Accordion.Body>
+                    <div className="border p-3 mb-3">
+                      <div className="d-flex gap-3 mb-3">
+                        <InputGroup className="flex-grow-1">
+                          <InputGroup.Text>Name</InputGroup.Text>
+                          <Form.Control
+                            value={prop.name}
+                            onChange={(e) => {
+                              const newProperties = [...node.patternProperties!];
+                              newProperties[index] = { ...prop, name: e.target.value };
+                              onChange({ ...node, patternProperties: newProperties });
+                            }}
+                          />
+                          <Button
+                            variant="danger"
+                            onClick={() => {
+                              const newProperties = node.patternProperties?.filter((_, i) => i !== index);
+                              onChange({ ...node, patternProperties: newProperties });
+                            }}
+                          >
+                            <Delete01Icon />
+                          </Button>
+                        </InputGroup>
+                      </div>
+                      <SchemaFormBuilder
+                        node={prop.schema}
+                        onChange={(newSchema) => {
+                          const newProperties = [...node.patternProperties!];
+                          newProperties[index].schema = newSchema;
+                          onChange({ ...node, patternProperties: newProperties });
+                        }}
+                        rootDefinitions={rootDefinitions}
+                      />
+                    </div>
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
+            ))}
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={() => onChange({
+                ...node,
+                patternProperties: [...(node.patternProperties || []), {
+                  name: '',
+                  schema: initialSchema
+                }]
+              })}
+            >
+              <Add01Icon />
+            </Button>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
     </>
   )
 }

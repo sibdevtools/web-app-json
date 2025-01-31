@@ -34,7 +34,10 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
       case 'number':
         const numberNode = node as NumberSchemaNode;
         if (numberNode.minimum !== undefined) schema.minimum = numberNode.minimum;
+        if (numberNode.exclusiveMinimum !== undefined) schema.exclusiveMinimum = numberNode.exclusiveMinimum;
         if (numberNode.maximum !== undefined) schema.maximum = numberNode.maximum;
+        if (numberNode.exclusiveMaximum !== undefined) schema.exclusiveMaximum = numberNode.exclusiveMaximum;
+        if (numberNode.multipleOf !== undefined) schema.multipleOf = numberNode.multipleOf;
         break;
       case 'object':
         const objectNode = node as ObjectSchemaNode;
@@ -51,6 +54,12 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
           if (required.length > 0) {
             schema.required = required;
           }
+        }
+        if (objectNode.patternProperties) {
+          schema.patternProperties = objectNode.patternProperties.reduce((acc, prop) => {
+            acc[prop.name] = convertToJsonSchema(prop.schema);
+            return acc;
+          }, {} as Record<string, any>);
         }
         break;
       case 'array':
@@ -174,7 +183,10 @@ export function parseJsonSchema(json: any): SchemaNode {
       return {
         ...baseNode,
         minimum: json.minimum,
+        exclusiveMinimum: json.exclusiveMinimum,
         maximum: json.maximum,
+        exclusiveMaximum: json.exclusiveMaximum,
+        multipleOf: json.multipleOf,
       } as NumberSchemaNode
     case 'object':
       return {
@@ -183,6 +195,10 @@ export function parseJsonSchema(json: any): SchemaNode {
         properties: Object.entries(json.properties || {}).map(([name, prop]) => ({
           name,
           required: (json.required || []).includes(name),
+          schema: parseJsonSchema(prop)
+        })),
+        patternProperties: Object.entries(json.patternProperties || {}).map(([name, prop]) => ({
+          name,
           schema: parseJsonSchema(prop)
         }))
       } as ObjectSchemaNode
