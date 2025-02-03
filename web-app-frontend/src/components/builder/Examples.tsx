@@ -4,50 +4,50 @@ import { SchemaNode } from '../../const/type';
 import { MinusSignIcon, PlusSignIcon } from 'hugeicons-react';
 
 
-export interface EnumNodeProps {
+export interface ExamplesProps {
   node: SchemaNode;
   onChange: (newNode: SchemaNode) => void;
 }
 
-const EnumNode: React.FC<EnumNodeProps> = ({
+const Examples: React.FC<ExamplesProps> = ({
                                              node,
                                              onChange,
                                            }) => {
-  if (!node.enum || node.enum.length === 0) {
-    node.enum = [''];
+  if (!node.examples || node.examples.length === 0) {
+    node.examples = [''];
   }
   return (
     <Form.Group>
-      <Form.Label>Enum Items</Form.Label>
-      {node.enum?.map((it, index) => (
+      <Form.Label>Examples</Form.Label>
+      {node.examples?.map((it, index) => (
         <>
           <Form.Group className="mb-3">
             <InputGroup>
-              <InputGroup.Text>Enum Item</InputGroup.Text>
+              <InputGroup.Text>Example</InputGroup.Text>
               <Form.Control
                 value={it || ''}
                 onChange={(e) => {
-                  const newEnum = [...(node.enum || [])]
-                  newEnum[index] = e.target.value
-                  onChange({ ...node, enum: newEnum })
+                  const updated = [...(node.examples || [])]
+                  updated[index] = e.target.value
+                  onChange({ ...node, examples: updated })
                 }}
               />
               <Button
                 variant="outline-success"
                 onClick={() => {
-                  const updated = [...(node.enum || [])]
+                  const updated = [...(node.examples || [])]
                   updated.splice(index + 1, 0, '');
-                  onChange({ ...node, enum: updated });
+                  onChange({ ...node, examples: updated });
                 }}
               >
                 <PlusSignIcon />
               </Button>
               <Button
                 variant="outline-danger"
-                disabled={node.enum?.length === 1}
+                disabled={node.examples?.length === 1}
                 onClick={() => {
-                  const newEnum = node.enum?.filter((_, i) => i !== index);
-                  onChange({ ...node, enum: newEnum });
+                  const newEnum = node.examples?.filter((_, i) => i !== index);
+                  onChange({ ...node, examples: newEnum });
                 }}
               >
                 <MinusSignIcon />
@@ -60,4 +60,4 @@ const EnumNode: React.FC<EnumNodeProps> = ({
   )
 }
 
-export default EnumNode;
+export default Examples;

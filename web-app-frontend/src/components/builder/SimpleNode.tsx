@@ -8,6 +8,7 @@ import ArrayNode from './ArrayNode';
 import ConstNode from './ConstNode';
 import EnumNode from './EnumNode';
 import ReferenceNode from './ReferenceNode';
+import Examples from './Examples';
 
 
 export interface SimpleNodeProps {
@@ -44,6 +45,21 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
           />
         </InputGroup>
       </Form.Group>
+
+      <Form.Group className="mb-3">
+        <InputGroup>
+          <InputGroup.Text>Default</InputGroup.Text>
+          <Form.Control
+            value={node.default}
+            onChange={(e) => onChange({ ...node, default: e.target.value })}
+          />
+        </InputGroup>
+      </Form.Group>
+
+      <Examples
+        node={node}
+        onChange={onChange}
+      />
 
       <Form.Group className="mb-3">
         <InputGroup>
@@ -86,6 +102,28 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
         </InputGroup>
       </Form.Group>
 
+      {node.specification === 'const' && (
+        <ConstNode
+          node={node}
+          onChange={onChange}
+        />
+      )}
+
+      {node.specification === 'enum' && (
+        <EnumNode
+          node={node}
+          onChange={onChange}
+        />
+      )}
+
+      {node.specification === 'reference' && (
+        <ReferenceNode
+          node={node}
+          onChange={onChange}
+          rootDefinitions={rootDefinitions}
+        />
+      )}
+
       {node.type === 'string' && (
         <StringNode
           node={node as StringSchemaNode}
@@ -111,28 +149,6 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
       {node.type === 'array' && (
         <ArrayNode
           node={node as ArraySchemaNode}
-          onChange={onChange}
-          rootDefinitions={rootDefinitions}
-        />
-      )}
-
-      {node.specification === 'const' && (
-        <ConstNode
-          node={node}
-          onChange={onChange}
-        />
-      )}
-
-      {node.specification === 'enum' && (
-        <EnumNode
-          node={node}
-          onChange={onChange}
-        />
-      )}
-
-      {node.specification === 'reference' && (
-        <ReferenceNode
-          node={node}
           onChange={onChange}
           rootDefinitions={rootDefinitions}
         />
