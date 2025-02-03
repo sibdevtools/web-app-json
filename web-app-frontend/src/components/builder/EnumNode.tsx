@@ -1,6 +1,7 @@
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import { SchemaNode } from '../../const/type';
+import { MinusSignIcon, PlusSignIcon } from 'hugeicons-react';
 
 
 export interface EnumNodeProps {
@@ -12,8 +13,12 @@ const EnumNode: React.FC<EnumNodeProps> = ({
                                              node,
                                              onChange,
                                            }) => {
+  if (!node.enum || node.enum.length === 0) {
+    node.enum = [''];
+  }
   return (
-    <>
+    <Form.Group>
+      <Form.Label>Enum Items</Form.Label>
       {node.enum?.map((it, index) => (
         <>
           <Form.Group className="mb-3">
@@ -28,29 +33,30 @@ const EnumNode: React.FC<EnumNodeProps> = ({
                 }}
               />
               <Button
+                variant="outline-success"
+                onClick={() => {
+                  const updated = [...(node.enum || [])]
+                  updated.splice(index + 1, 0, '');
+                  onChange({ ...node, enum: updated });
+                }}
+              >
+                <PlusSignIcon />
+              </Button>
+              <Button
                 variant="outline-danger"
+                disabled={node.enum?.length === 1}
                 onClick={() => {
                   const newEnum = node.enum?.filter((_, i) => i !== index);
                   onChange({ ...node, enum: newEnum });
                 }}
               >
-                -
+                <MinusSignIcon />
               </Button>
             </InputGroup>
           </Form.Group>
         </>
       ))}
-      <Button
-        variant="outline-success"
-        onClick={() => {
-          const newEnum = [...(node.enum || [])]
-          newEnum.push('')
-          onChange({ ...node, enum: newEnum });
-        }}
-      >
-        +
-      </Button>
-    </>
+    </Form.Group>
   )
 }
 

@@ -96,6 +96,28 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
         </InputGroup>
       </Form.Group>
 
+      {node.specification === 'const' && (
+        <ConstNode
+          node={node}
+          onChange={onChange}
+        />
+      )}
+
+      {node.specification === 'enum' && (
+        <EnumNode
+          node={node}
+          onChange={onChange}
+        />
+      )}
+
+      {node.specification === 'reference' && (
+        <ReferenceNode
+          node={node}
+          onChange={onChange}
+          rootDefinitions={rootDefinitions}
+        />
+      )}
+
       {node.type === 'string' && (
         <StringNode
           node={node as StringSchemaNode}
@@ -121,28 +143,6 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
       {node.type === 'array' && (
         <ArrayNode
           node={node as ArraySchemaNode}
-          onChange={onChange}
-          rootDefinitions={rootDefinitions}
-        />
-      )}
-
-      {node.specification === 'const' && (
-        <ConstNode
-          node={node}
-          onChange={onChange}
-        />
-      )}
-
-      {node.specification === 'enum' && (
-        <EnumNode
-          node={node}
-          onChange={onChange}
-        />
-      )}
-
-      {node.specification === 'reference' && (
-        <ReferenceNode
-          node={node}
           onChange={onChange}
           rootDefinitions={rootDefinitions}
         />
