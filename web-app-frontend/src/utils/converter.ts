@@ -42,7 +42,7 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
       case 'object':
         const objectNode = node as ObjectSchemaNode;
         schema.additionalProperties = objectNode.additionalProperties;
-        if (objectNode.properties) {
+        if (objectNode.properties && objectNode.properties.length > 0) {
           schema.properties = objectNode.properties.reduce((acc, prop) => {
             acc[prop.name] = convertToJsonSchema(prop.schema);
             return acc;
@@ -55,7 +55,7 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
             schema.required = required;
           }
         }
-        if (objectNode.patternProperties) {
+        if (objectNode.patternProperties && objectNode.patternProperties.length > 0) {
           schema.patternProperties = objectNode.patternProperties.reduce((acc, prop) => {
             acc[prop.name] = convertToJsonSchema(prop.schema);
             return acc;
