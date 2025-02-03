@@ -22,6 +22,20 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
   }
 
   if (node.nodeType === 'simple') {
+    switch (node.specification) {
+      case 'const':
+        if (node.const) schema.const = JSON.parse(node.const);
+        break;
+      case 'enum':
+        if (node.enum) schema.enum = node.enum?.map(it => JSON.parse(it));
+        break;
+      case 'reference':
+        if (node.reference) {
+          schema.$ref = node.reference;
+        }
+        break;
+    }
+
     switch (node.type) {
       case 'string':
         const stringNode = node as StringSchemaNode;
@@ -64,25 +78,12 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
         break;
       case 'array':
         const arrayNode = node as ArraySchemaNode;
-        if (arrayNode.items) schema.items = convertToJsonSchema(arrayNode.items);
         if (arrayNode.minItems !== undefined) schema.minItems = arrayNode.minItems;
         if (arrayNode.maxItems !== undefined) schema.maxItems = arrayNode.maxItems;
+        if (arrayNode.items) schema.items = convertToJsonSchema(arrayNode.items);
         break;
     }
 
-    switch (node.specification) {
-      case 'const':
-        if (node.const) schema.const = JSON.parse(node.const);
-        break;
-      case 'enum':
-        if (node.enum) schema.enum = node.enum?.map(it => JSON.parse(it));
-        break;
-      case 'reference':
-        if (node.reference) {
-          schema.$ref = node.reference;
-        }
-        break;
-    }
   } else {
     schema[node.nodeType] = node[node.nodeType]?.map(schemaNode => convertToJsonSchema(schemaNode));
   }
