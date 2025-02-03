@@ -27,7 +27,7 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
         if (node.const) schema.const = JSON.parse(node.const);
         break;
       case 'enum':
-        if (node.enum) schema.enum = node.enum?.map(it => JSON.parse(it));
+        if (node.enum) schema.enum = node.enum?.filter(it => it.length > 0)?.map(it => JSON.parse(it));
         break;
       case 'reference':
         if (node.reference) {
@@ -35,6 +35,8 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
         }
         break;
     }
+
+    if (node.examples) schema.examples = node.examples?.filter(it => it.length > 0)?.map(it => JSON.parse(it));
 
     switch (node.type) {
       case 'string':
@@ -168,6 +170,16 @@ export function parseJsonSchema(json: any): SchemaNode {
     case 'reference':
       baseNode.reference = json['$ref']
       break;
+  }
+
+  if('examples' in json) {
+    const jsonExamples = json.examples;
+    baseNode.examples = []
+    if (jsonExamples && typeof jsonExamples[Symbol.iterator] === 'function') {
+      for (let item of jsonExamples) {
+        baseNode.examples.push(JSON.stringify(item))
+      }
+    }
   }
 
   if (json.allOf) {

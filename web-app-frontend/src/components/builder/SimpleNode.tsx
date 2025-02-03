@@ -8,6 +8,7 @@ import ArrayNode from './ArrayNode';
 import ConstNode from './ConstNode';
 import EnumNode from './EnumNode';
 import ReferenceNode from './ReferenceNode';
+import Examples from './Examples';
 
 
 export interface SimpleNodeProps {
@@ -54,6 +55,11 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
           />
         </InputGroup>
       </Form.Group>
+
+      <Examples
+        node={node}
+        onChange={onChange}
+      />
 
       <Form.Group className="mb-3">
         <InputGroup>
