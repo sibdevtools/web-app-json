@@ -10,6 +10,7 @@ export interface BaseSchemaNode {
   nullable: boolean;
   title: string;
   description: string;
+  default?: string;
   allOf?: SchemaNode[];
   anyOf?: SchemaNode[];
   oneOf?: SchemaNode[];

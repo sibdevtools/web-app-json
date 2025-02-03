@@ -47,6 +47,16 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
 
       <Form.Group className="mb-3">
         <InputGroup>
+          <InputGroup.Text>Default</InputGroup.Text>
+          <Form.Control
+            value={node.default}
+            onChange={(e) => onChange({ ...node, default: e.target.value })}
+          />
+        </InputGroup>
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <InputGroup>
           <InputGroup.Text>
             Type
           </InputGroup.Text>

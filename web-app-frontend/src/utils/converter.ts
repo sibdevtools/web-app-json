@@ -38,6 +38,9 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
 
     switch (node.type) {
       case 'string':
+        if (node.default !== undefined && node.default.length > 0) {
+          schema.default = node.default
+        }
         const stringNode = node as StringSchemaNode;
         if (stringNode.minLength !== undefined) schema.minLength = stringNode.minLength;
         if (stringNode.maxLength !== undefined) schema.maxLength = stringNode.maxLength;
@@ -46,6 +49,9 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
         break;
       case 'integer':
       case 'number':
+        if (node.default !== undefined && node.default.length > 0) {
+          schema.default = Number(node.default)
+        }
         const numberNode = node as NumberSchemaNode;
         if (numberNode.minimum !== undefined) schema.minimum = numberNode.minimum;
         if (numberNode.exclusiveMinimum !== undefined) schema.exclusiveMinimum = numberNode.exclusiveMinimum;
@@ -54,6 +60,9 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
         if (numberNode.multipleOf !== undefined) schema.multipleOf = numberNode.multipleOf;
         break;
       case 'object':
+        if (node.default !== undefined && node.default.length > 0) {
+          schema.default = JSON.parse(node.default)
+        }
         const objectNode = node as ObjectSchemaNode;
         schema.additionalProperties = objectNode.additionalProperties;
         if (objectNode.properties && objectNode.properties.length > 0) {
@@ -77,10 +86,18 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
         }
         break;
       case 'array':
+        if (node.default !== undefined && node.default.length > 0) {
+          schema.default = JSON.parse(node.default)
+        }
         const arrayNode = node as ArraySchemaNode;
         if (arrayNode.minItems !== undefined) schema.minItems = arrayNode.minItems;
         if (arrayNode.maxItems !== undefined) schema.maxItems = arrayNode.maxItems;
         if (arrayNode.items) schema.items = convertToJsonSchema(arrayNode.items);
+        break;
+      case 'boolean':
+        if (node.default !== undefined && node.default.length > 0) {
+          schema.default = 'true' === node.default
+        }
         break;
     }
 
@@ -132,6 +149,7 @@ export function parseJsonSchema(json: any): SchemaNode {
     nullable,
     title: json.title || '',
     description: json.description || '',
+    default: json.default !== undefined ? JSON.stringify(json.default) : undefined,
   };
 
   switch (specification) {
