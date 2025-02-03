@@ -36,7 +36,12 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
         break;
     }
 
-    if (node.examples) schema.examples = node.examples?.filter(it => it.length > 0)?.map(it => JSON.parse(it));
+    if (node.examples) {
+      const examples = node.examples?.filter(it => it.length > 0)?.map(it => JSON.parse(it));
+      if (examples?.length > 0) {
+        schema.examples = examples;
+      }
+    }
 
     switch (node.type) {
       case 'string':
@@ -172,7 +177,7 @@ export function parseJsonSchema(json: any): SchemaNode {
       break;
   }
 
-  if('examples' in json) {
+  if ('examples' in json) {
     const jsonExamples = json.examples;
     baseNode.examples = []
     if (jsonExamples && typeof jsonExamples[Symbol.iterator] === 'function') {
