@@ -12,12 +12,14 @@ export interface JsonInputFormProps {
   jsonSchemaProvider: () => any;
   validationErrors: string[];
   setValidationErrors: (value: string[]) => void;
+  showMode: 'both' | 'builder' | 'json';
 }
 
 const JsonInputForm: React.FC<JsonInputFormProps> = ({
                                                        jsonSchemaProvider,
                                                        validationErrors,
-                                                       setValidationErrors
+                                                       setValidationErrors,
+                                                       showMode
                                                      }) => {
   const [validationData, setValidationData] = useState('');
 
@@ -69,13 +71,15 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
   return (
     <Container>
       <ButtonGroup className={'float-end'}>
-        <Button
-          variant="outline-success"
-          title={'Validate'}
-          onClick={validateAgainstSchema}
-        >
-          <CheckmarkSquare01Icon />
-        </Button>
+        {showMode === 'both' && (
+          <Button
+            variant="outline-success"
+            title={'Validate'}
+            onClick={validateAgainstSchema}
+          >
+            <CheckmarkSquare01Icon />
+          </Button>
+        )}
         <Button
           variant="outline-secondary"
           title={'Beautify'}
