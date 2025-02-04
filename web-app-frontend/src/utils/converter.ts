@@ -36,13 +36,6 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
         break;
     }
 
-    if (node.examples) {
-      const examples = node.examples?.filter(it => it.length > 0)?.map(it => JSON.parse(it));
-      if (examples?.length > 0) {
-        schema.examples = examples;
-      }
-    }
-
     switch (node.type) {
       case 'string':
         if (node.default !== undefined && node.default.length > 0) {
@@ -106,6 +99,13 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
           schema.default = 'true' === node.default
         }
         break;
+    }
+
+    if (node.examples) {
+      const examples = node.examples?.filter(it => it.length > 0)?.map(it => JSON.parse(it));
+      if (examples?.length > 0) {
+        schema.examples = examples;
+      }
     }
 
   } else {
