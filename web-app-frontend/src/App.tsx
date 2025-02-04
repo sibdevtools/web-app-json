@@ -66,10 +66,12 @@ const App: React.FC = () => {
             <Col md={showMode === 'both' ? 4 : 2}>
               <ButtonGroup className="mb-2">
                 <Button variant={editorMode === 'builder' ? 'primary' : 'outline-primary'}
+                        title={'Builder'}
                         onClick={() => changeEditorMode('builder')}>
                   <LineiconsBricks />
                 </Button>
                 <Button variant={editorMode === 'ace' ? 'primary' : 'outline-primary'}
+                        title={'Text Editor'}
                         onClick={() => changeEditorMode('ace')}>
                   <LineiconsPenToSquare />
                 </Button>
@@ -89,7 +91,7 @@ const App: React.FC = () => {
         </Col>
         <Col md={showMode === 'both' ? 6 : 12} hidden={showMode == 'builder'}>
           <Row className="mb-4">
-            <Col md={{ span: 1, offset: 1 }}>
+            <Col md={{ span: 2, offset: 1 }}>
               <ButtonGroup className="mb-2">
                 <Button variant={showMode === 'both' ? 'secondary' : 'outline-secondary'}
                         onClick={() => {
@@ -103,7 +105,7 @@ const App: React.FC = () => {
                 </Button>
               </ButtonGroup>
             </Col>
-            <Col md={{ offset: 1, span: 9 }}>
+            <Col md={{ offset: 1, span: 8 }}>
               <h3>JSON</h3>
             </Col>
           </Row>

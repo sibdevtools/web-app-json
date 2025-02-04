@@ -1,10 +1,15 @@
 import { Button, ButtonGroup, Container } from 'react-bootstrap';
-import { AiBeautifyIcon, CheckmarkSquare01Icon, TextWrapIcon } from 'hugeicons-react';
 import AceEditor from 'react-ace';
 import React, { useState } from 'react';
 import Ajv from 'ajv';
 import { loadSettings } from '../settings/utils';
 import '../const/ace.imports'
+import {
+  FluentMagicWand28Regular,
+  FluentTextWrap20Regular,
+  FluentTextWrapOff20Regular,
+  LineiconsCheckSquare2
+} from '../const/icons';
 
 const ajv = new Ajv({ allErrors: true });
 
@@ -77,7 +82,7 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
             title={'Validate'}
             onClick={validateAgainstSchema}
           >
-            <CheckmarkSquare01Icon />
+            <LineiconsCheckSquare2 />
           </Button>
         )}
         <Button
@@ -85,15 +90,15 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
           title={'Beautify'}
           onClick={beautifyData}
         >
-          <AiBeautifyIcon />
+          <FluentMagicWand28Regular />
         </Button>
         <Button
           variant="primary"
-          active={isWordWrapEnabled}
           title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
           onClick={() => setIsWordWrapEnabled((prev) => !prev)}
         >
-          <TextWrapIcon />
+          {isWordWrapEnabled && (<FluentTextWrap20Regular />)}
+          {!isWordWrapEnabled && (<FluentTextWrapOff20Regular />)}
         </Button>
       </ButtonGroup>
       <AceEditor

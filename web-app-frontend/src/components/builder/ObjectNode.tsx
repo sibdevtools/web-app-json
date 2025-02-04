@@ -1,8 +1,8 @@
 import { Accordion, Button, Form, InputGroup } from 'react-bootstrap';
-import { Add01Icon, Delete01Icon } from 'hugeicons-react';
 import React from 'react';
 import SchemaFormBuilder, { initialSchema } from '../SchemaFormBuilder';
 import { ObjectSchemaNode, SchemaNode } from '../../const/type';
+import { LineiconsPlus, LineiconsTrash3 } from '../../const/icons';
 
 export interface ObjectNodeProps {
   node: ObjectSchemaNode;
@@ -68,7 +68,7 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
                               onChange({ ...node, properties: newProperties });
                             }}
                           >
-                            <Delete01Icon />
+                            <LineiconsTrash3 />
                           </Button>
                         </InputGroup>
                       </div>
@@ -98,7 +98,7 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
                 }]
               })}
             >
-              <Add01Icon />
+              <LineiconsPlus />
             </Button>
           </Accordion.Body>
         </Accordion.Item>
@@ -134,7 +134,7 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
                               onChange({ ...node, patternProperties: newProperties });
                             }}
                           >
-                            <Delete01Icon />
+                            <LineiconsTrash3 />
                           </Button>
                         </InputGroup>
                       </div>
@@ -163,7 +163,7 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
                 }]
               })}
             >
-              <Add01Icon />
+              <LineiconsPlus />
             </Button>
           </Accordion.Body>
         </Accordion.Item>
