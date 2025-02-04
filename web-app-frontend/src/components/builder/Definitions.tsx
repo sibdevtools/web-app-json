@@ -1,8 +1,8 @@
 import { Accordion, Button, Form, InputGroup } from 'react-bootstrap';
-import { Add01Icon, Delete01Icon } from 'hugeicons-react';
 import React from 'react';
 import SchemaFormBuilder, { initialSchema } from '../SchemaFormBuilder';
 import { SchemaNode } from '../../const/type';
+import { LineiconsPlus, LineiconsTrash3 } from '../../const/icons';
 
 
 function renameField(obj: Record<string, SchemaNode>, oldKey: string, newKey: string): Record<string, SchemaNode> {
@@ -53,7 +53,7 @@ const Definitions: React.FC<DefinitionsProps> = ({
                             onChange({ ...node, definitions: newDefinitions });
                           }}
                         >
-                          <Delete01Icon />
+                          <LineiconsTrash3 />
                         </Button>
                       </InputGroup>
                     </Form.Group>
@@ -80,7 +80,7 @@ const Definitions: React.FC<DefinitionsProps> = ({
               onChange({ ...node, definitions: newDefinitions });
             }}
           >
-            <Add01Icon />
+            <LineiconsPlus />
           </Button>
         </Accordion.Body>
       </Accordion.Item>

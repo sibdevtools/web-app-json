@@ -1,7 +1,7 @@
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import { SchemaNode } from '../../const/type';
-import { MinusSignIcon, PlusSignIcon } from 'hugeicons-react';
+import { LineiconsMinus, LineiconsPlus } from '../../const/icons';
 
 
 export interface EnumNodeProps {
@@ -40,7 +40,7 @@ const EnumNode: React.FC<EnumNodeProps> = ({
                   onChange({ ...node, enum: updated });
                 }}
               >
-                <PlusSignIcon />
+                <LineiconsPlus />
               </Button>
               <Button
                 variant="outline-danger"
@@ -50,7 +50,7 @@ const EnumNode: React.FC<EnumNodeProps> = ({
                   onChange({ ...node, enum: newEnum });
                 }}
               >
-                <MinusSignIcon />
+                <LineiconsMinus />
               </Button>
             </InputGroup>
           </Form.Group>

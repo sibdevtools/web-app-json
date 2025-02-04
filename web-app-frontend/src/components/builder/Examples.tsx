@@ -1,7 +1,7 @@
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import { SchemaNode } from '../../const/type';
-import { MinusSignIcon, PlusSignIcon } from 'hugeicons-react';
+import { LineiconsMinus, LineiconsPlus } from '../../const/icons';
 
 
 export interface ExamplesProps {
@@ -40,7 +40,7 @@ const Examples: React.FC<ExamplesProps> = ({
                   onChange({ ...node, examples: updated });
                 }}
               >
-                <PlusSignIcon />
+                <LineiconsPlus />
               </Button>
               <Button
                 variant="outline-danger"
@@ -50,7 +50,7 @@ const Examples: React.FC<ExamplesProps> = ({
                   onChange({ ...node, examples: newEnum });
                 }}
               >
-                <MinusSignIcon />
+                <LineiconsMinus />
               </Button>
             </InputGroup>
           </Form.Group>

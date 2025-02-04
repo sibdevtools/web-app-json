@@ -1,10 +1,10 @@
 import { Button, ButtonGroup, Container } from 'react-bootstrap';
-import { TextWrapIcon } from 'hugeicons-react';
 import AceEditor from 'react-ace';
 import React, { useState } from 'react';
 import { loadSettings } from '../settings/utils';
 
 import '../const/ace.imports'
+import { FluentTextWrap20Regular, FluentTextWrapOff20Regular } from '../const/icons';
 
 export interface SchemaTextEditorProps {
   textSchema: string;
@@ -25,11 +25,11 @@ const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
       <ButtonGroup className={'float-end'}>
         <Button
           variant="primary"
-          active={isWordWrapEnabled}
           title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
           onClick={() => setIsWordWrapEnabled((prev) => !prev)}
         >
-          <TextWrapIcon />
+          {isWordWrapEnabled && (<FluentTextWrap20Regular />)}
+          {!isWordWrapEnabled && (<FluentTextWrapOff20Regular />)}
         </Button>
       </ButtonGroup>
       <AceEditor

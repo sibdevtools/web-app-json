@@ -1,9 +1,9 @@
 import { Accordion, Button } from 'react-bootstrap';
 import React from 'react';
 import { SchemaNode } from '../../const/type';
-import { Add01Icon, Delete01Icon } from 'hugeicons-react';
 import SchemaFormBuilder, { initialSchema } from '../SchemaFormBuilder';
 import SimpleNode from './SimpleNode';
+import { LineiconsPlus, LineiconsTrash3 } from '../../const/icons';
 
 
 export interface ComplexNodeProps {
@@ -59,7 +59,7 @@ const ComplexNode: React.FC<ComplexNodeProps> = ({
                       onChange({ ...node, [node.nodeType]: newSchemas });
                     }}
                   >
-                    <Delete01Icon />
+                    <LineiconsTrash3 />
                   </Button>
                 </Accordion.Body>
               </Accordion.Item>
@@ -76,7 +76,7 @@ const ComplexNode: React.FC<ComplexNodeProps> = ({
               onChange({ ...node, [node.nodeType]: newSchemas });
             }}
           >
-            <Add01Icon />
+            <LineiconsPlus />
           </Button>
         </Accordion.Body>
       </Accordion.Item>

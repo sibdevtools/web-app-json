@@ -1,10 +1,15 @@
 import { Button, ButtonGroup, Container } from 'react-bootstrap';
-import { AiBeautifyIcon, CheckmarkSquare01Icon, TextWrapIcon } from 'hugeicons-react';
 import AceEditor from 'react-ace';
 import React, { useState } from 'react';
 import Ajv from 'ajv';
 import { loadSettings } from '../settings/utils';
 import '../const/ace.imports'
+import {
+  FluentMagicWand28Regular,
+  FluentTextWrap20Regular,
+  FluentTextWrapOff20Regular,
+  LineiconsCheckSquare2
+} from '../const/icons';
 
 const ajv = new Ajv({ allErrors: true });
 
@@ -12,12 +17,14 @@ export interface JsonInputFormProps {
   jsonSchemaProvider: () => any;
   validationErrors: string[];
   setValidationErrors: (value: string[]) => void;
+  showMode: 'both' | 'builder' | 'json';
 }
 
 const JsonInputForm: React.FC<JsonInputFormProps> = ({
                                                        jsonSchemaProvider,
                                                        validationErrors,
-                                                       setValidationErrors
+                                                       setValidationErrors,
+                                                       showMode
                                                      }) => {
   const [validationData, setValidationData] = useState('');
 
@@ -69,27 +76,29 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
   return (
     <Container>
       <ButtonGroup className={'float-end'}>
-        <Button
-          variant="outline-success"
-          title={'Validate'}
-          onClick={validateAgainstSchema}
-        >
-          <CheckmarkSquare01Icon />
-        </Button>
+        {showMode === 'both' && (
+          <Button
+            variant="outline-success"
+            title={'Validate'}
+            onClick={validateAgainstSchema}
+          >
+            <LineiconsCheckSquare2 />
+          </Button>
+        )}
         <Button
           variant="outline-secondary"
           title={'Beautify'}
           onClick={beautifyData}
         >
-          <AiBeautifyIcon />
+          <FluentMagicWand28Regular />
         </Button>
         <Button
           variant="primary"
-          active={isWordWrapEnabled}
           title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
           onClick={() => setIsWordWrapEnabled((prev) => !prev)}
         >
-          <TextWrapIcon />
+          {isWordWrapEnabled && (<FluentTextWrap20Regular />)}
+          {!isWordWrapEnabled && (<FluentTextWrapOff20Regular />)}
         </Button>
       </ButtonGroup>
       <AceEditor
