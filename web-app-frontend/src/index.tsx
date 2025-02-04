@@ -1,5 +1,4 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'hugeicons-react';
 
 import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';

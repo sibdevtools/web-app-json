@@ -56,11 +56,11 @@ const App: React.FC = () => {
   }
 
   return (
-    <Container className="my-4">
+    <Container fluid className="my-4">
       <Row>
         <Col md={showMode === 'both' ? 6 : 12} hidden={showMode === 'json'}>
           <Row className="mb-4">
-            <Col md={showMode === 'both' ? 8 : 10}>
+            <Col md={{ span: showMode === 'both' ? 7 : 9, offset: 1}}>
               <h3>JSON Schema Builder</h3>
             </Col>
             <Col md={showMode === 'both' ? 4 : 2}>
