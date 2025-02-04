@@ -11,7 +11,6 @@ import { LineiconsBricks, LineiconsPenToSquare, LineiconsShiftLeft, LineiconsShi
 const App: React.FC = () => {
   const [rootSchema, setRootSchema] = useState<SchemaNode>(initialSchema);
   const [textSchema, setTextSchema] = useState<string>('');
-  const [rootDefinitions, setRootDefinitions] = useState<Record<string, SchemaNode>>({});
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [schemaValidationErrors, setSchemaValidationErrors] = useState<string[]>([]);
   const [editorMode, setEditorMode] = useState<'builder' | 'ace'>('builder');
@@ -32,7 +31,6 @@ const App: React.FC = () => {
       try {
         const parsed = JSON.parse(textSchema);
         const converted = parseJsonSchema(parsed);
-        setRootDefinitions(converted.definitions || {})
         setRootSchema(converted);
         setEditorMode(mode)
         setSchemaValidationErrors([])
@@ -56,11 +54,11 @@ const App: React.FC = () => {
   }
 
   return (
-    <Container className="my-4">
+    <Container fluid className="my-4">
       <Row>
         <Col md={showMode === 'both' ? 6 : 12} hidden={showMode === 'json'}>
           <Row className="mb-4">
-            <Col md={showMode === 'both' ? 8 : 10}>
+            <Col md={{ span: showMode === 'both' ? 7 : 9, offset: 1 }}>
               <h3>JSON Schema Builder</h3>
             </Col>
             <Col md={showMode === 'both' ? 4 : 2}>
@@ -118,7 +116,7 @@ const App: React.FC = () => {
             <SchemaFormBuilder
               node={rootSchema}
               onChange={setRootSchema}
-              rootDefinitions={rootDefinitions}
+              rootDefinitions={rootSchema.definitions}
               isRoot={true} />
           ) : (
             <SchemaTextEditor

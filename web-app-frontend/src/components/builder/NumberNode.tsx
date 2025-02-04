@@ -1,4 +1,4 @@
-import { Form, InputGroup } from 'react-bootstrap';
+import { Accordion, Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import { NumberSchemaNode, SchemaNode } from '../../const/type';
 
@@ -36,58 +36,63 @@ const NumberNode: React.FC<NumberNodeProps> = ({
   };
 
   return (
-    <>
-      <Form.Group className="mb-3">
-        <InputGroup>
-          <InputGroup.Text>Minimum Value</InputGroup.Text>
-          <Form.Control
-            type="number"
-            value={node.minimum ?? ''}
-            onChange={(e) => handleNumberChange('minimum', e.target.value)}
-          />
-        </InputGroup>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <InputGroup>
-          <InputGroup.Text>Maximum Value</InputGroup.Text>
-          <Form.Control
-            type="number"
-            value={node.maximum ?? ''}
-            onChange={(e) => handleNumberChange('maximum', e.target.value)}
-          />
-        </InputGroup>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <InputGroup>
-          <InputGroup.Text>Exclusive Minimum Value</InputGroup.Text>
-          <Form.Control
-            type="number"
-            value={node.exclusiveMinimum ?? ''}
-            onChange={(e) => handleNumberChange('exclusiveMinimum', e.target.value)}
-          />
-        </InputGroup>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <InputGroup>
-          <InputGroup.Text>Exclusive Maximum Value</InputGroup.Text>
-          <Form.Control
-            type="number"
-            value={node.exclusiveMaximum ?? ''}
-            onChange={(e) => handleNumberChange('exclusiveMaximum', e.target.value)}
-          />
-        </InputGroup>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <InputGroup>
-          <InputGroup.Text>Multiple Of</InputGroup.Text>
-          <Form.Control
-            type="number"
-            value={node.multipleOf ?? ''}
-            onChange={(e) => handleNumberChange('multipleOf', e.target.value)}
-          />
-        </InputGroup>
-      </Form.Group>
-    </>
+    <Accordion className="mb-3">
+      <Accordion.Item eventKey="number-parameters">
+        <Accordion.Header>Number Parameters</Accordion.Header>
+        <Accordion.Body>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Minimum Value</InputGroup.Text>
+              <Form.Control
+                type="number"
+                value={node.minimum ?? ''}
+                onChange={(e) => handleNumberChange('minimum', e.target.value)}
+              />
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Maximum Value</InputGroup.Text>
+              <Form.Control
+                type="number"
+                value={node.maximum ?? ''}
+                onChange={(e) => handleNumberChange('maximum', e.target.value)}
+              />
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Exclusive Minimum Value</InputGroup.Text>
+              <Form.Control
+                type="number"
+                value={node.exclusiveMinimum ?? ''}
+                onChange={(e) => handleNumberChange('exclusiveMinimum', e.target.value)}
+              />
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Exclusive Maximum Value</InputGroup.Text>
+              <Form.Control
+                type="number"
+                value={node.exclusiveMaximum ?? ''}
+                onChange={(e) => handleNumberChange('exclusiveMaximum', e.target.value)}
+              />
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Multiple Of</InputGroup.Text>
+              <Form.Control
+                type="number"
+                value={node.multipleOf ?? ''}
+                onChange={(e) => handleNumberChange('multipleOf', e.target.value)}
+              />
+            </InputGroup>
+          </Form.Group>
+        </Accordion.Body>
+      </Accordion.Item>
+    </Accordion>
   )
 }
 

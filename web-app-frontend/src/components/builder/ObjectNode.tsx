@@ -16,159 +16,164 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
                                                  rootDefinitions
                                                }) => {
   return (
-    <>
-      <Form.Group className="mb-3">
-        <Form.Check
-          type="checkbox"
-          label="Allow Additional Properties"
-          checked={node.additionalProperties}
-          onChange={(e) => onChange({ ...node, additionalProperties: e.target.checked })}
-        />
-      </Form.Group>
+    <Accordion className="mb-3">
+      <Accordion.Item eventKey="object-parameters">
+        <Accordion.Header>Object Parameters</Accordion.Header>
+        <Accordion.Body>
+          <Form.Group className="mb-3">
+            <Form.Check
+              type="checkbox"
+              label="Allow Additional Properties"
+              checked={node.additionalProperties}
+              onChange={(e) => onChange({ ...node, additionalProperties: e.target.checked })}
+            />
+          </Form.Group>
 
-      <Accordion defaultActiveKey="0" className="mb-3">
-        <Accordion.Item eventKey="properties">
-          <Accordion.Header>Properties</Accordion.Header>
-          <Accordion.Body>
-            {node.properties?.map((prop, index) => (
-              <Accordion key={index} className="mb-3">
-                <Accordion.Item eventKey={String(index)}>
-                  <Accordion.Header>
-                    {prop.name || 'Unnamed Property'} ({prop.schema.type})
-                  </Accordion.Header>
-                  <Accordion.Body>
-                    <div className="border p-3 mb-3">
-                      <div className="d-flex gap-3 mb-3">
-                        <InputGroup className="flex-grow-1">
-                          <InputGroup.Text>Name</InputGroup.Text>
-                          <Form.Control
-                            value={prop.name}
-                            onChange={(e) => {
+          <Accordion defaultActiveKey="0" className="mb-3">
+            <Accordion.Item eventKey="properties">
+              <Accordion.Header>Properties</Accordion.Header>
+              <Accordion.Body>
+                {node.properties?.map((prop, index) => (
+                  <Accordion key={index} className="mb-3">
+                    <Accordion.Item eventKey={String(index)}>
+                      <Accordion.Header>
+                        {prop.name || 'Unnamed Property'} ({prop.schema.type})
+                      </Accordion.Header>
+                      <Accordion.Body>
+                        <div className="border p-3 mb-3">
+                          <div className="d-flex gap-3 mb-3">
+                            <InputGroup className="flex-grow-1">
+                              <InputGroup.Text>Name</InputGroup.Text>
+                              <Form.Control
+                                value={prop.name}
+                                onChange={(e) => {
+                                  const newProperties = [...node.properties!];
+                                  newProperties[index] = { ...prop, name: e.target.value };
+                                  onChange({ ...node, properties: newProperties });
+                                }}
+                              />
+                              <InputGroup.Text>
+                                <Form.Check
+                                  type="checkbox"
+                                  label="Required"
+                                  checked={prop.required}
+                                  onChange={(e) => {
+                                    const newProperties = [...node.properties!];
+                                    newProperties[index] = { ...prop, required: e.target.checked };
+                                    onChange({ ...node, properties: newProperties });
+                                  }}
+                                />
+                              </InputGroup.Text>
+                              <Button
+                                variant="danger"
+                                onClick={() => {
+                                  const newProperties = node.properties?.filter((_, i) => i !== index);
+                                  onChange({ ...node, properties: newProperties });
+                                }}
+                              >
+                                <LineiconsTrash3 />
+                              </Button>
+                            </InputGroup>
+                          </div>
+                          <SchemaFormBuilder
+                            node={prop.schema}
+                            onChange={(newSchema) => {
                               const newProperties = [...node.properties!];
-                              newProperties[index] = { ...prop, name: e.target.value };
+                              newProperties[index].schema = newSchema;
                               onChange({ ...node, properties: newProperties });
                             }}
+                            rootDefinitions={rootDefinitions}
                           />
-                          <InputGroup.Text>
-                            <Form.Check
-                              type="checkbox"
-                              label="Required"
-                              checked={prop.required}
-                              onChange={(e) => {
-                                const newProperties = [...node.properties!];
-                                newProperties[index] = { ...prop, required: e.target.checked };
-                                onChange({ ...node, properties: newProperties });
-                              }}
-                            />
-                          </InputGroup.Text>
-                          <Button
-                            variant="danger"
-                            onClick={() => {
-                              const newProperties = node.properties?.filter((_, i) => i !== index);
-                              onChange({ ...node, properties: newProperties });
-                            }}
-                          >
-                            <LineiconsTrash3 />
-                          </Button>
-                        </InputGroup>
-                      </div>
-                      <SchemaFormBuilder
-                        node={prop.schema}
-                        onChange={(newSchema) => {
-                          const newProperties = [...node.properties!];
-                          newProperties[index].schema = newSchema;
-                          onChange({ ...node, properties: newProperties });
-                        }}
-                        rootDefinitions={rootDefinitions}
-                      />
-                    </div>
-                  </Accordion.Body>
-                </Accordion.Item>
-              </Accordion>
-            ))}
-            <Button
-              variant="outline-success"
-              size="sm"
-              onClick={() => onChange({
-                ...node,
-                properties: [...(node.properties || []), {
-                  name: '',
-                  required: false,
-                  schema: initialSchema
-                }]
-              })}
-            >
-              <LineiconsPlus />
-            </Button>
-          </Accordion.Body>
-        </Accordion.Item>
-      </Accordion>
+                        </div>
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
+                ))}
+                <Button
+                  variant="outline-success"
+                  size="sm"
+                  onClick={() => onChange({
+                    ...node,
+                    properties: [...(node.properties || []), {
+                      name: '',
+                      required: false,
+                      schema: initialSchema
+                    }]
+                  })}
+                >
+                  <LineiconsPlus />
+                </Button>
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
 
-      <Accordion defaultActiveKey="0" className="mb-3">
-        <Accordion.Item eventKey="patternProperties">
-          <Accordion.Header>Pattern Properties</Accordion.Header>
-          <Accordion.Body>
-            {node.patternProperties?.map((prop, index) => (
-              <Accordion key={index} className="mb-3">
-                <Accordion.Item eventKey={String(index)}>
-                  <Accordion.Header>
-                    {prop.name || 'Unnamed Property'} ({prop.schema.type})
-                  </Accordion.Header>
-                  <Accordion.Body>
-                    <div className="border p-3 mb-3">
-                      <div className="d-flex gap-3 mb-3">
-                        <InputGroup className="flex-grow-1">
-                          <InputGroup.Text>Name</InputGroup.Text>
-                          <Form.Control
-                            value={prop.name}
-                            onChange={(e) => {
+          <Accordion defaultActiveKey="0" className="mb-3">
+            <Accordion.Item eventKey="patternProperties">
+              <Accordion.Header>Pattern Properties</Accordion.Header>
+              <Accordion.Body>
+                {node.patternProperties?.map((prop, index) => (
+                  <Accordion key={index} className="mb-3">
+                    <Accordion.Item eventKey={String(index)}>
+                      <Accordion.Header>
+                        {prop.name || 'Unnamed Property'} ({prop.schema.type})
+                      </Accordion.Header>
+                      <Accordion.Body>
+                        <div className="border p-3 mb-3">
+                          <div className="d-flex gap-3 mb-3">
+                            <InputGroup className="flex-grow-1">
+                              <InputGroup.Text>Name</InputGroup.Text>
+                              <Form.Control
+                                value={prop.name}
+                                onChange={(e) => {
+                                  const newProperties = [...node.patternProperties!];
+                                  newProperties[index] = { ...prop, name: e.target.value };
+                                  onChange({ ...node, patternProperties: newProperties });
+                                }}
+                              />
+                              <Button
+                                variant="danger"
+                                onClick={() => {
+                                  const newProperties = node.patternProperties?.filter((_, i) => i !== index);
+                                  onChange({ ...node, patternProperties: newProperties });
+                                }}
+                              >
+                                <LineiconsTrash3 />
+                              </Button>
+                            </InputGroup>
+                          </div>
+                          <SchemaFormBuilder
+                            node={prop.schema}
+                            onChange={(newSchema) => {
                               const newProperties = [...node.patternProperties!];
-                              newProperties[index] = { ...prop, name: e.target.value };
+                              newProperties[index].schema = newSchema;
                               onChange({ ...node, patternProperties: newProperties });
                             }}
+                            rootDefinitions={rootDefinitions}
                           />
-                          <Button
-                            variant="danger"
-                            onClick={() => {
-                              const newProperties = node.patternProperties?.filter((_, i) => i !== index);
-                              onChange({ ...node, patternProperties: newProperties });
-                            }}
-                          >
-                            <LineiconsTrash3 />
-                          </Button>
-                        </InputGroup>
-                      </div>
-                      <SchemaFormBuilder
-                        node={prop.schema}
-                        onChange={(newSchema) => {
-                          const newProperties = [...node.patternProperties!];
-                          newProperties[index].schema = newSchema;
-                          onChange({ ...node, patternProperties: newProperties });
-                        }}
-                        rootDefinitions={rootDefinitions}
-                      />
-                    </div>
-                  </Accordion.Body>
-                </Accordion.Item>
-              </Accordion>
-            ))}
-            <Button
-              variant="outline-success"
-              size="sm"
-              onClick={() => onChange({
-                ...node,
-                patternProperties: [...(node.patternProperties || []), {
-                  name: '',
-                  schema: initialSchema
-                }]
-              })}
-            >
-              <LineiconsPlus />
-            </Button>
-          </Accordion.Body>
-        </Accordion.Item>
-      </Accordion>
-    </>
+                        </div>
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
+                ))}
+                <Button
+                  variant="outline-success"
+                  size="sm"
+                  onClick={() => onChange({
+                    ...node,
+                    patternProperties: [...(node.patternProperties || []), {
+                      name: '',
+                      schema: initialSchema
+                    }]
+                  })}
+                >
+                  <LineiconsPlus />
+                </Button>
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        </Accordion.Body>
+      </Accordion.Item>
+    </Accordion>
   )
 }
 

@@ -1,4 +1,4 @@
-import { Form, InputGroup } from 'react-bootstrap';
+import { Accordion, Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import { ArraySchemaNode, NumberSchemaNode, ObjectSchemaNode, SchemaNode, StringSchemaNode } from '../../const/type';
 import StringNode from './StringNode';
@@ -24,42 +24,49 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
                                                }) => {
   return (
     <>
-      <Form.Group className="mb-3">
-        <InputGroup>
-          <InputGroup.Text>Title</InputGroup.Text>
-          <Form.Control
-            value={node.title}
-            onChange={(e) => onChange({ ...node, title: e.target.value.slice(0, 64) })}
-            maxLength={64}
-          />
-        </InputGroup>
-      </Form.Group>
+      <Accordion className="mb-3">
+        <Accordion.Item eventKey="string-parameters">
+          <Accordion.Header>Optional Parameters</Accordion.Header>
+          <Accordion.Body>
+            <Form.Group className="mb-3">
+              <InputGroup>
+                <InputGroup.Text>Title</InputGroup.Text>
+                <Form.Control
+                  value={node.title}
+                  onChange={(e) => onChange({ ...node, title: e.target.value.slice(0, 64) })}
+                  maxLength={64}
+                />
+              </InputGroup>
+            </Form.Group>
 
-      <Form.Group className="mb-3">
-        <InputGroup>
-          <InputGroup.Text>Description</InputGroup.Text>
-          <Form.Control
-            value={node.description}
-            onChange={(e) => onChange({ ...node, description: e.target.value.slice(0, 256) })}
-            maxLength={256}
-          />
-        </InputGroup>
-      </Form.Group>
+            <Form.Group className="mb-3">
+              <InputGroup>
+                <InputGroup.Text>Description</InputGroup.Text>
+                <Form.Control
+                  value={node.description}
+                  onChange={(e) => onChange({ ...node, description: e.target.value.slice(0, 256) })}
+                  maxLength={256}
+                />
+              </InputGroup>
+            </Form.Group>
 
-      <Form.Group className="mb-3">
-        <InputGroup>
-          <InputGroup.Text>Default</InputGroup.Text>
-          <Form.Control
-            value={node.default}
-            onChange={(e) => onChange({ ...node, default: e.target.value })}
-          />
-        </InputGroup>
-      </Form.Group>
+            <Form.Group className="mb-3">
+              <InputGroup>
+                <InputGroup.Text>Default</InputGroup.Text>
+                <Form.Control
+                  value={node.default}
+                  onChange={(e) => onChange({ ...node, default: e.target.value })}
+                />
+              </InputGroup>
+            </Form.Group>
 
-      <Examples
-        node={node}
-        onChange={onChange}
-      />
+            <Examples
+              node={node}
+              onChange={onChange}
+            />
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
 
       <Form.Group className="mb-3">
         <InputGroup>
