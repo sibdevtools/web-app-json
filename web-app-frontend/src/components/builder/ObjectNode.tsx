@@ -18,7 +18,7 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
   return (
     <Accordion className="mb-3">
       <Accordion.Item eventKey="object-parameters">
-        <Accordion.Header>Number Parameters</Accordion.Header>
+        <Accordion.Header>Object Parameters</Accordion.Header>
         <Accordion.Body>
           <Form.Group className="mb-3">
             <Form.Check
