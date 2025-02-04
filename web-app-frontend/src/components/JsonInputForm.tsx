@@ -10,8 +10,16 @@ import {
   FluentTextWrapOff20Regular,
   LineiconsCheckSquare2
 } from '../const/icons';
+import Ajv2019 from 'ajv/dist/2019';
+import Ajv2020 from 'ajv/dist/2020';
+
+const draft06MetaSchema = require('ajv/lib/refs/json-schema-draft-06.json');
 
 const ajv = new Ajv({ allErrors: true });
+ajv.addMetaSchema(draft06MetaSchema);
+
+const ajv2019 = new Ajv2019({ allErrors: true })
+const ajv2020 = new Ajv2020({ allErrors: true })
 
 export interface JsonInputFormProps {
   jsonSchemaProvider: () => any;
@@ -35,7 +43,16 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
     try {
       const dataToValidate = JSON.parse(validationData);
       const jsonSchema = jsonSchemaProvider();
-      const validate = ajv.compile(jsonSchema);
+      let validate;
+      if (jsonSchema.$schema === 'http://json-schema.org/draft/2019-09/schema' ||
+        jsonSchema.$schema === 'https://json-schema.org/draft/2019-09/schema') {
+        validate = ajv2019.compile(jsonSchema);
+      } else if (jsonSchema.$schema === 'http://json-schema.org/draft/2020-12/schema' ||
+        jsonSchema.$schema === 'https://json-schema.org/draft/2020-12/schema') {
+        validate = ajv2020.compile(jsonSchema);
+      } else {
+        validate = ajv.compile(jsonSchema);
+      }
       const valid = validate(dataToValidate);
 
       const errors: string[] = [];
@@ -47,8 +64,8 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
             return `${e.message}: '${propName}'`;
           }
           console.log(JSON.stringify(e));
-          if (e.dataPath) {
-            return `'${e.dataPath}': ${e.message}`;
+          if (e.schemaPath) {
+            return `'${e.schemaPath}': ${e.message}`;
           }
           return `${e.message}`;
         }));

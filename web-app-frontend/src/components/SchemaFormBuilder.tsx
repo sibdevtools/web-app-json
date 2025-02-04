@@ -16,12 +16,10 @@ export const initialSchema: SchemaNode = {
 };
 
 const schemas = [
-  'https://json-schema.org/draft-04/schema#',
-  'https://json-schema.org/draft-05/schema#',
-  'https://json-schema.org/draft-06/schema#',
-  'https://json-schema.org/draft-07/schema#',
-  'https://json-schema.org/draft/2019-09/schema#',
-  'https://json-schema.org/draft/2020-12/schema#',
+  'http://json-schema.org/draft-06/schema',
+  'http://json-schema.org/draft-07/schema',
+  'https://json-schema.org/draft/2019-09/schema',
+  'https://json-schema.org/draft/2020-12/schema',
 ];
 
 const SchemaFormBuilder: React.FC<{
