@@ -44,11 +44,9 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
       const dataToValidate = JSON.parse(validationData);
       const jsonSchema = jsonSchemaProvider();
       let validate;
-      if (jsonSchema.$schema === 'http://json-schema.org/draft/2019-09/schema' ||
-        jsonSchema.$schema === 'https://json-schema.org/draft/2019-09/schema') {
+      if (jsonSchema.$schema === 'https://json-schema.org/draft/2019-09/schema') {
         validate = ajv2019.compile(jsonSchema);
-      } else if (jsonSchema.$schema === 'http://json-schema.org/draft/2020-12/schema' ||
-        jsonSchema.$schema === 'https://json-schema.org/draft/2020-12/schema') {
+      } else if (jsonSchema.$schema === 'https://json-schema.org/draft/2020-12/schema') {
         validate = ajv2020.compile(jsonSchema);
       } else {
         validate = ajv.compile(jsonSchema);
