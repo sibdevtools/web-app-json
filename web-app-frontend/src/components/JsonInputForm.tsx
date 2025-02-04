@@ -88,7 +88,7 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
               </Button>
             )}
             <Button
-              variant="outline-secondary"
+              variant="outline-warning"
               title={'Beautify'}
               onClick={beautifyData}
             >
