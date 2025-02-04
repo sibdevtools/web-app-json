@@ -13,6 +13,7 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
   const type = node.nullable ? ['null', baseType] : baseType;
 
   const schema: any = {
+    $schema: node.schema || undefined,
     title: node.title || undefined,
     description: node.description || undefined,
   };
@@ -154,6 +155,7 @@ export function parseJsonSchema(json: any): SchemaNode {
     type,
     specification,
     nullable,
+    schema: json.$schema,
     title: json.title || '',
     description: json.description || '',
   };

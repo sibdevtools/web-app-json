@@ -11,6 +11,7 @@ export interface BaseSchemaNode {
   title: string;
   description: string;
   default?: string;
+  schema?: string;
   examples?: string[];
   allOf?: SchemaNode[];
   anyOf?: SchemaNode[];
