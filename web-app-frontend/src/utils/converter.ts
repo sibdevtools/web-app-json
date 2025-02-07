@@ -10,6 +10,7 @@ import {
 
 export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): any {
   const schema: any = {
+    $id: node.id || undefined,
     $schema: node.schema || undefined,
     title: node.title || undefined,
     description: node.description || undefined,
@@ -152,6 +153,7 @@ export function parseJsonSchema(json: any): SchemaNode {
     nodeType,
     type,
     specification,
+    id: json.$id,
     schema: json.$schema,
     title: json.title || '',
     description: json.description || '',
