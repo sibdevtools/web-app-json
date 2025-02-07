@@ -28,6 +28,28 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
               onChange={(e) => onChange({ ...node, additionalProperties: e.target.checked })}
             />
           </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Minimum Properties</InputGroup.Text>
+              <Form.Control
+                type="number"
+                value={node.minProperties || ''}
+                min={0}
+                onChange={(e) => onChange({ ...node, minProperties: Number(e.target.value) })}
+              />
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Maximum Properties</InputGroup.Text>
+              <Form.Control
+                type="number"
+                value={node.maxProperties || ''}
+                min={0}
+                onChange={(e) => onChange({ ...node, maxProperties: Number(e.target.value) })}
+              />
+            </InputGroup>
+          </Form.Group>
 
           <Accordion defaultActiveKey="0" className="mb-3">
             <Accordion.Item eventKey="properties">

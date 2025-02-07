@@ -50,6 +50,8 @@ export interface ObjectSchemaNode extends BaseSchemaNode {
     schema: SchemaNode;
   }>;
   additionalProperties?: boolean;
+  minProperties?: number;
+  maxProperties?: number;
 }
 
 // Interface for array type schema nodes
