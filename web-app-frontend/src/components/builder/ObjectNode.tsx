@@ -21,12 +21,44 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
         <Accordion.Header>Object Parameters</Accordion.Header>
         <Accordion.Body>
           <Form.Group className="mb-3">
-            <Form.Check
-              type="checkbox"
-              label="Allow Additional Properties"
-              checked={node.additionalProperties}
-              onChange={(e) => onChange({ ...node, additionalProperties: e.target.checked })}
-            />
+            <InputGroup>
+              <InputGroup.Text>
+                Allow Additional Properties
+              </InputGroup.Text>
+              <Form.Select
+                value={node.additionalProperties}
+                onChange={(e) => onChange({
+                  ...node,
+                  additionalProperties: e.target.value as 'undefined' | 'true' | 'false'
+                })}
+              >
+                <option value={'undefined'}>Undefined</option>
+                <option value={'true'}>Yes</option>
+                <option value={'false'}>No</option>
+              </Form.Select>
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Minimum Properties</InputGroup.Text>
+              <Form.Control
+                type="number"
+                value={node.minProperties || ''}
+                min={0}
+                onChange={(e) => onChange({ ...node, minProperties: Number(e.target.value) })}
+              />
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup>
+              <InputGroup.Text>Maximum Properties</InputGroup.Text>
+              <Form.Control
+                type="number"
+                value={node.maxProperties || ''}
+                min={0}
+                onChange={(e) => onChange({ ...node, maxProperties: Number(e.target.value) })}
+              />
+            </InputGroup>
           </Form.Group>
 
           <Accordion defaultActiveKey="0" className="mb-3">
