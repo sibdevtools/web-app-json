@@ -8,9 +8,8 @@ import { Form, InputGroup } from 'react-bootstrap';
 
 export const initialSchema: SchemaNode = {
   nodeType: 'simple',
-  type: 'string',
+  type: ['string'],
   specification: 'none',
-  nullable: false,
   title: '',
   description: '',
 };

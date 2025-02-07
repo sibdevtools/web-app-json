@@ -1,6 +1,13 @@
 import { Accordion, Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
-import { ArraySchemaNode, NumberSchemaNode, ObjectSchemaNode, SchemaNode, StringSchemaNode } from '../../const/type';
+import {
+  ArraySchemaNode,
+  NodeType,
+  NumberSchemaNode,
+  ObjectSchemaNode,
+  SchemaNode,
+  StringSchemaNode
+} from '../../const/type';
 import StringNode from './StringNode';
 import NumberNode from './NumberNode';
 import ObjectNode from './ObjectNode';
@@ -74,22 +81,25 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
             Type
           </InputGroup.Text>
           <Form.Select
+            multiple
             value={node.type}
-            onChange={(e) => onChange({ ...node, type: e.target.value as SchemaNode['type'] })}
+            onChange={(e) => {
+              if (e.target.selectedOptions.length === 0) {
+                node.type = 'undefined';
+                return
+              }
+              const newType: NodeType[] = [];
+              for (let selectedOption of e.target.selectedOptions) {
+                newType.push(selectedOption.value as NodeType)
+              }
+              onChange({ ...node, type: newType })
+            }
+            }
           >
             {['undefined', 'string', 'boolean', 'number', 'integer', 'object', 'array', 'null'].map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </Form.Select>
-          <InputGroup.Text>
-            <Form.Check
-              type="checkbox"
-              label="Nullable"
-              checked={node.nullable}
-              onChange={(e) => onChange({ ...node, nullable: e.target.checked })}
-              disabled={node.type === 'null' || node.type === 'undefined'}
-            />
-          </InputGroup.Text>
         </InputGroup>
       </Form.Group>
 
@@ -131,21 +141,21 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
         />
       )}
 
-      {node.type === 'string' && (
+      {node.type.includes('string') && (
         <StringNode
           node={node as StringSchemaNode}
           onChange={onChange}
         />
       )}
 
-      {(node.type === 'number' || node.type === 'integer') && (
+      {(node.type.includes('number') || node.type.includes('integer')) && (
         <NumberNode
           node={node as NumberSchemaNode}
           onChange={onChange}
         />
       )}
 
-      {node.type === 'object' && (
+      {node.type.includes('object') && (
         <ObjectNode
           node={node as ObjectSchemaNode}
           onChange={onChange}
@@ -153,7 +163,7 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
         />
       )}
 
-      {node.type === 'array' && (
+      {node.type.includes('array') && (
         <ArrayNode
           node={node as ArraySchemaNode}
           onChange={onChange}
