@@ -2,6 +2,7 @@ import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import React, { useState } from 'react';
 import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 import { loadSettings } from '../settings/utils';
 import '../const/ace.imports'
 import {
@@ -17,9 +18,12 @@ const draft06MetaSchema = require('ajv/lib/refs/json-schema-draft-06.json');
 
 const ajv = new Ajv({ allErrors: true });
 ajv.addMetaSchema(draft06MetaSchema);
+addFormats(ajv);
 
 const ajv2019 = new Ajv2019({ allErrors: true })
+addFormats(ajv2019);
 const ajv2020 = new Ajv2020({ allErrors: true })
+addFormats(ajv2020);
 
 export interface JsonInputFormProps {
   jsonSchemaProvider: () => any;
