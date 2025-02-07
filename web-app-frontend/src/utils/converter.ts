@@ -65,7 +65,8 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
           schema.default = JSON.parse(node.default)
         }
         const objectNode = node as ObjectSchemaNode;
-        schema.additionalProperties = objectNode.additionalProperties;
+        if (objectNode.additionalProperties === 'false') schema.additionalProperties = false;
+        else if (objectNode.additionalProperties === 'true') schema.additionalProperties = true;
         schema.minProperties = objectNode.minProperties;
         schema.maxProperties = objectNode.maxProperties;
         if (objectNode.properties && objectNode.properties.length > 0) {
@@ -232,7 +233,7 @@ export function parseJsonSchema(json: any): SchemaNode {
     case 'object':
       return {
         ...baseNode,
-        additionalProperties: json.additionalProperties,
+        additionalProperties: json.additionalProperties !== undefined ? `${json.additionalProperties}` : 'undefined',
         minProperties: json.minProperties,
         maxProperties: json.maxProperties,
         properties: Object.entries(json.properties || {}).map(([name, prop]) => ({

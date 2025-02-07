@@ -49,7 +49,7 @@ export interface ObjectSchemaNode extends BaseSchemaNode {
     name: string;
     schema: SchemaNode;
   }>;
-  additionalProperties?: boolean;
+  additionalProperties: 'undefined' | 'true' | 'false';
   minProperties?: number;
   maxProperties?: number;
 }

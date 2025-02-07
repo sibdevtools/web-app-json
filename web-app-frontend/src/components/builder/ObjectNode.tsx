@@ -21,12 +21,22 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
         <Accordion.Header>Object Parameters</Accordion.Header>
         <Accordion.Body>
           <Form.Group className="mb-3">
-            <Form.Check
-              type="checkbox"
-              label="Allow Additional Properties"
-              checked={node.additionalProperties}
-              onChange={(e) => onChange({ ...node, additionalProperties: e.target.checked })}
-            />
+            <InputGroup>
+              <InputGroup.Text>
+                Allow Additional Properties
+              </InputGroup.Text>
+              <Form.Select
+                value={node.additionalProperties}
+                onChange={(e) => onChange({
+                  ...node,
+                  additionalProperties: e.target.value as 'undefined' | 'true' | 'false'
+                })}
+              >
+                <option value={'undefined'}>Undefined</option>
+                <option value={'true'}>Yes</option>
+                <option value={'false'}>No</option>
+              </Form.Select>
+            </InputGroup>
           </Form.Group>
           <Form.Group className="mb-3">
             <InputGroup>
