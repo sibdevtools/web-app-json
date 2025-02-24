@@ -56,13 +56,13 @@ const App: React.FC = () => {
   return (
     <Container fluid className="my-4">
       <Row>
-        <Col md={showMode === 'both' ? 6 : 12} hidden={showMode === 'json'}>
+        <Col lg={showMode === 'both' ? 6 : 12} hidden={showMode === 'json'}>
           <Row className="mb-4">
-            <Col md={{ span: showMode === 'both' ? 7 : 9, offset: 1 }}>
+            <Col xs={7} sm={8} md={10} lg={showMode === 'both' ? 7 : 9} xl={{ span: showMode === 'both' ? 7 : 9, offset: 1 }}>
               <h3>JSON Schema Builder</h3>
             </Col>
-            <Col md={showMode === 'both' ? 4 : 2}>
-              <ButtonGroup className="mb-2">
+            <Col xs={5} sm={4} md={2} lg={showMode === 'both' ? 5 : 3} xl={showMode === 'both' ? 4 : 2}>
+              <ButtonGroup className="mb-2 d-md-block d-lg-none">
                 <Button variant={editorMode === 'builder' ? 'primary' : 'outline-primary'}
                         title={'Builder'}
                         onClick={() => changeEditorMode('builder')}>
@@ -73,13 +73,26 @@ const App: React.FC = () => {
                         onClick={() => changeEditorMode('ace')}>
                   <LineiconsPenToSquare />
                 </Button>
-                <Button variant={showMode === 'both' ? 'secondary' : 'outline-secondary'}
-                        onClick={() => {
-                          if (showMode === 'both') setShowMode('builder');
-                          else {
-                            setShowMode('both');
-                          }
-                        }}>
+              </ButtonGroup>
+              <ButtonGroup className="mb-2 d-none d-lg-block">
+                <Button variant={editorMode === 'builder' ? 'primary' : 'outline-primary'}
+                        title={'Builder'}
+                        onClick={() => changeEditorMode('builder')}>
+                  <LineiconsBricks />
+                </Button>
+                <Button variant={editorMode === 'ace' ? 'primary' : 'outline-primary'}
+                        title={'Text Editor'}
+                        onClick={() => changeEditorMode('ace')}>
+                  <LineiconsPenToSquare />
+                </Button>
+                <Button
+                  variant={showMode === 'both' ? 'secondary' : 'outline-secondary'}
+                  onClick={() => {
+                    if (showMode === 'both') setShowMode('builder');
+                    else {
+                      setShowMode('both');
+                    }
+                  }}>
                   {showMode === 'both' && (<LineiconsShiftRight />)}
                   {showMode === 'builder' && (<LineiconsShiftLeft />)}
                 </Button>
@@ -87,9 +100,9 @@ const App: React.FC = () => {
             </Col>
           </Row>
         </Col>
-        <Col md={showMode === 'both' ? 6 : 12} hidden={showMode == 'builder'}>
+        <Col className={`d-none ${showMode == 'builder' ? '' : 'd-lg-block'}`} lg={showMode === 'both' ? 6 : 12}>
           <Row className="mb-4">
-            <Col md={{ span: 2, offset: 1 }}>
+            <Col lg={{ span: 2, offset: 1 }}>
               <ButtonGroup className="mb-2">
                 <Button variant={showMode === 'both' ? 'secondary' : 'outline-secondary'}
                         onClick={() => {
@@ -103,7 +116,7 @@ const App: React.FC = () => {
                 </Button>
               </ButtonGroup>
             </Col>
-            <Col md={{ offset: 1, span: 8 }}>
+            <Col lg={{ offset: 1, span: 8 }}>
               <h3>JSON</h3>
             </Col>
           </Row>
@@ -111,7 +124,7 @@ const App: React.FC = () => {
       </Row>
 
       <Row>
-        <Col md={showMode === 'both' ? 6 : 12} hidden={showMode === 'json'}>
+        <Col lg={showMode === 'both' ? 6 : 12} hidden={showMode === 'json'}>
           {editorMode === 'builder' ? (
             <SchemaFormBuilder
               node={rootSchema}
@@ -136,7 +149,12 @@ const App: React.FC = () => {
             </div>
           )}
         </Col>
-        <Col md={showMode === 'both' ? 6 : 12} hidden={showMode === 'builder'}>
+        <Col lg={showMode === 'both' ? 6 : 12} hidden={showMode === 'builder'}>
+          <Row className={'mt-2 mb-2 d-md-block d-lg-none'}>
+            <Col>
+              <h3>JSON</h3>
+            </Col>
+          </Row>
           <JsonInputForm jsonSchemaProvider={jsonSchemaProvider}
                          validationErrors={validationErrors}
                          setValidationErrors={setValidationErrors}
