@@ -5,6 +5,7 @@ import SimpleNode from './builder/SimpleNode';
 import ComplexNode from './builder/ComplexNode';
 import NodeTypeSelector from './builder/NodeTypeSelector';
 import { Form, InputGroup } from 'react-bootstrap';
+import SuggestiveInput from './suggestive-input/SuggestiveInput';
 
 export const initialSchema: SchemaNode = {
   nodeType: 'simple',
@@ -28,7 +29,7 @@ const SchemaFormBuilder: React.FC<{
   isRoot?: boolean;
 }> = ({ node, onChange, rootDefinitions, isRoot = false }) => {
   return (
-    <div className="border p-3 mb-3">
+    <>
       {isRoot && (
         <>
           <Form.Group className="mb-3">
@@ -44,15 +45,16 @@ const SchemaFormBuilder: React.FC<{
           <Form.Group className="mb-3">
             <InputGroup>
               <InputGroup.Text>Schema</InputGroup.Text>
-              <Form.Control
+              <SuggestiveInput
+                mode={'strict'}
                 value={node.schema}
-                list={'json-schema-suggestions'}
-                onChange={(e) => onChange({ ...node, schema: e.target.value })}
-                maxLength={128}
+                onChange={(e) => onChange({ ...node, schema: e.value })}
+                required={true}
+                suggestions={schemas.map(it => {
+                  return { key: it, value: it };
+                })}
+                maxSuggestions={5}
               />
-              <datalist id={'json-schema-suggestions'}>
-                {schemas.map(it => <option key={it} value={it} />)}
-              </datalist>
             </InputGroup>
           </Form.Group>
         </>
@@ -86,7 +88,7 @@ const SchemaFormBuilder: React.FC<{
           onChange={onChange}
         />
       )}
-    </div>
+    </>
   );
 };
 

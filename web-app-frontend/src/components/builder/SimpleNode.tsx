@@ -83,9 +83,10 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
           <Form.Select
             multiple
             value={node.type}
+            disabled={node.type === 'undefined'}
             onChange={(e) => {
               if (e.target.selectedOptions.length === 0) {
-                node.type = 'undefined';
+                node.type = ['string'];
                 return
               }
               const newType: NodeType[] = [];
@@ -96,10 +97,18 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
             }
             }
           >
-            {['undefined', 'string', 'boolean', 'number', 'integer', 'object', 'array', 'null'].map((type) => (
+            {['string', 'boolean', 'number', 'integer', 'object', 'array', 'null'].map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </Form.Select>
+          <InputGroup.Text>
+            Undefined
+          </InputGroup.Text>
+          <InputGroup.Checkbox
+            type={'checkbox'}
+            checked={node.type === 'undefined'}
+            onChange={e => onChange({ ...node, type: e.target.checked ? 'undefined' : ['string'] })}
+          />
         </InputGroup>
       </Form.Group>
 

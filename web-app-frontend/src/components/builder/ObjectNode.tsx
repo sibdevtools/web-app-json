@@ -1,7 +1,7 @@
 import { Accordion, Button, Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import SchemaFormBuilder, { initialSchema } from '../SchemaFormBuilder';
-import { ObjectSchemaNode, SchemaNode } from '../../const/type';
+import { BaseSchemaNode, ObjectSchemaNode, SchemaNode } from '../../const/type';
 import { LineiconsPlus, LineiconsTrash3 } from '../../const/icons';
 
 export interface ObjectNodeProps {
@@ -15,6 +15,13 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
                                                  onChange,
                                                  rootDefinitions
                                                }) => {
+  const nodePropertyTypes = (node: BaseSchemaNode): string => {
+    if (node.type === 'undefined') {
+      return node.type;
+    }
+    return node.type.join(', ')
+  }
+
   return (
     <Accordion className="mb-3">
       <Accordion.Item eventKey="object-parameters">
@@ -69,54 +76,52 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
                   <Accordion key={index} className="mb-3">
                     <Accordion.Item eventKey={String(index)}>
                       <Accordion.Header>
-                        {prop.name || 'Unnamed Property'} ({prop.schema.type})
+                        {prop.name || 'Unnamed Property'} ({nodePropertyTypes(prop.schema)})
                       </Accordion.Header>
                       <Accordion.Body>
-                        <div className="border p-3 mb-3">
-                          <div className="d-flex gap-3 mb-3">
-                            <InputGroup className="flex-grow-1">
-                              <InputGroup.Text>Name</InputGroup.Text>
-                              <Form.Control
-                                value={prop.name}
+                        <div className="d-flex gap-3 mb-3">
+                          <InputGroup className="flex-grow-1">
+                            <InputGroup.Text>Name</InputGroup.Text>
+                            <Form.Control
+                              value={prop.name}
+                              onChange={(e) => {
+                                const newProperties = [...node.properties!];
+                                newProperties[index] = { ...prop, name: e.target.value };
+                                onChange({ ...node, properties: newProperties });
+                              }}
+                            />
+                            <InputGroup.Text>
+                              <Form.Check
+                                type="checkbox"
+                                label="Required"
+                                checked={prop.required}
                                 onChange={(e) => {
                                   const newProperties = [...node.properties!];
-                                  newProperties[index] = { ...prop, name: e.target.value };
+                                  newProperties[index] = { ...prop, required: e.target.checked };
                                   onChange({ ...node, properties: newProperties });
                                 }}
                               />
-                              <InputGroup.Text>
-                                <Form.Check
-                                  type="checkbox"
-                                  label="Required"
-                                  checked={prop.required}
-                                  onChange={(e) => {
-                                    const newProperties = [...node.properties!];
-                                    newProperties[index] = { ...prop, required: e.target.checked };
-                                    onChange({ ...node, properties: newProperties });
-                                  }}
-                                />
-                              </InputGroup.Text>
-                              <Button
-                                variant="danger"
-                                onClick={() => {
-                                  const newProperties = node.properties?.filter((_, i) => i !== index);
-                                  onChange({ ...node, properties: newProperties });
-                                }}
-                              >
-                                <LineiconsTrash3 />
-                              </Button>
-                            </InputGroup>
-                          </div>
-                          <SchemaFormBuilder
-                            node={prop.schema}
-                            onChange={(newSchema) => {
-                              const newProperties = [...node.properties!];
-                              newProperties[index].schema = newSchema;
-                              onChange({ ...node, properties: newProperties });
-                            }}
-                            rootDefinitions={rootDefinitions}
-                          />
+                            </InputGroup.Text>
+                            <Button
+                              variant="danger"
+                              onClick={() => {
+                                const newProperties = node.properties?.filter((_, i) => i !== index);
+                                onChange({ ...node, properties: newProperties });
+                              }}
+                            >
+                              <LineiconsTrash3 />
+                            </Button>
+                          </InputGroup>
                         </div>
+                        <SchemaFormBuilder
+                          node={prop.schema}
+                          onChange={(newSchema) => {
+                            const newProperties = [...node.properties!];
+                            newProperties[index].schema = newSchema;
+                            onChange({ ...node, properties: newProperties });
+                          }}
+                          rootDefinitions={rootDefinitions}
+                        />
                       </Accordion.Body>
                     </Accordion.Item>
                   </Accordion>
@@ -147,42 +152,40 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({
                   <Accordion key={index} className="mb-3">
                     <Accordion.Item eventKey={String(index)}>
                       <Accordion.Header>
-                        {prop.name || 'Unnamed Property'} ({prop.schema.type})
+                        {prop.name || 'Unnamed Property'} ({nodePropertyTypes(prop.schema)})
                       </Accordion.Header>
                       <Accordion.Body>
-                        <div className="border p-3 mb-3">
-                          <div className="d-flex gap-3 mb-3">
-                            <InputGroup className="flex-grow-1">
-                              <InputGroup.Text>Name</InputGroup.Text>
-                              <Form.Control
-                                value={prop.name}
-                                onChange={(e) => {
-                                  const newProperties = [...node.patternProperties!];
-                                  newProperties[index] = { ...prop, name: e.target.value };
-                                  onChange({ ...node, patternProperties: newProperties });
-                                }}
-                              />
-                              <Button
-                                variant="danger"
-                                onClick={() => {
-                                  const newProperties = node.patternProperties?.filter((_, i) => i !== index);
-                                  onChange({ ...node, patternProperties: newProperties });
-                                }}
-                              >
-                                <LineiconsTrash3 />
-                              </Button>
-                            </InputGroup>
-                          </div>
-                          <SchemaFormBuilder
-                            node={prop.schema}
-                            onChange={(newSchema) => {
-                              const newProperties = [...node.patternProperties!];
-                              newProperties[index].schema = newSchema;
-                              onChange({ ...node, patternProperties: newProperties });
-                            }}
-                            rootDefinitions={rootDefinitions}
-                          />
+                        <div className="d-flex gap-3 mb-3">
+                          <InputGroup className="flex-grow-1">
+                            <InputGroup.Text>Name</InputGroup.Text>
+                            <Form.Control
+                              value={prop.name}
+                              onChange={(e) => {
+                                const newProperties = [...node.patternProperties!];
+                                newProperties[index] = { ...prop, name: e.target.value };
+                                onChange({ ...node, patternProperties: newProperties });
+                              }}
+                            />
+                            <Button
+                              variant="danger"
+                              onClick={() => {
+                                const newProperties = node.patternProperties?.filter((_, i) => i !== index);
+                                onChange({ ...node, patternProperties: newProperties });
+                              }}
+                            >
+                              <LineiconsTrash3 />
+                            </Button>
+                          </InputGroup>
                         </div>
+                        <SchemaFormBuilder
+                          node={prop.schema}
+                          onChange={(newSchema) => {
+                            const newProperties = [...node.patternProperties!];
+                            newProperties[index].schema = newSchema;
+                            onChange({ ...node, patternProperties: newProperties });
+                          }}
+                          rootDefinitions={rootDefinitions}
+                        />
                       </Accordion.Body>
                     </Accordion.Item>
                   </Accordion>
