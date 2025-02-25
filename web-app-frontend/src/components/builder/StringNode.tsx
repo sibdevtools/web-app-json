@@ -1,6 +1,7 @@
 import { Accordion, Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import { SchemaNode, StringSchemaNode } from '../../const/type';
+import SuggestiveInput from '../suggestive-input/SuggestiveInput';
 
 const buildInFormats = [
   'date-time', 'time', 'date', 'duration',
@@ -69,17 +70,16 @@ const StringNode: React.FC<StringNodeProps> = ({
           <Form.Group className="mb-3">
             <InputGroup>
               <InputGroup.Text>Format</InputGroup.Text>
-              <Form.Control
-                value={node.format || ''}
-                list="format-suggestions"
-                onChange={(e) => onChange({ ...node, format: e.target.value })}
+              <SuggestiveInput
+                mode={'strict'}
+                value={node.format ?? ''}
+                onChange={(e) => onChange({ ...node, format: e.value })}
+                required={true}
+                suggestions={buildInFormats.map(it => {
+                  return { key: it, value: it };
+                })}
+                maxSuggestions={10}
               />
-              <datalist id="format-suggestions">
-                {
-                  buildInFormats
-                    .map(it => <option key={it} value={it} />)
-                }
-              </datalist>
             </InputGroup>
           </Form.Group>
         </Accordion.Body>

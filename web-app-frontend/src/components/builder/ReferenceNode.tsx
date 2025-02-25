@@ -1,6 +1,7 @@
 import { Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import { SchemaNode } from '../../const/type';
+import SuggestiveInput from '../suggestive-input/SuggestiveInput';
 
 
 export interface ReferenceNodeProps {
@@ -18,18 +19,20 @@ const ReferenceNode: React.FC<ReferenceNodeProps> = ({
     <Form.Group className="mb-3">
       <InputGroup>
         <InputGroup.Text>Reference</InputGroup.Text>
-        <Form.Control
+        <SuggestiveInput
+          mode={'strict'}
           value={node.reference || ''}
-          list={'reference-suggestions'}
-          onChange={(e) => onChange({ ...node, reference: e.target.value })}
-        />
-        <datalist id="reference-suggestions">
-          {
+          onChange={(e) => onChange({ ...node, reference: e.value })}
+          required={true}
+          suggestions={
             Object.keys(rootDefinitions || {})
               .map(it => `#/$defs/${it}`)
-              .map(it => <option key={it} value={it} />)
+              .map(it => {
+                return { key: it, value: it }
+              })
           }
-        </datalist>
+          maxSuggestions={10}
+        />
       </InputGroup>
     </Form.Group>
   )

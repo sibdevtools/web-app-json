@@ -115,8 +115,9 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
     schema[node.nodeType] = node[node.nodeType]?.map(schemaNode => convertToJsonSchema(schemaNode));
   }
 
-  if (isRoot && node.definitions) {
-    schema.$defs = Object.entries(node.definitions).reduce((acc, [name, defNode]) => {
+  const definitions = isRoot && node.definitions ? Object.entries(node.definitions) : [];
+  if (definitions && definitions.length > 0) {
+    schema.$defs = definitions.reduce((acc, [name, defNode]) => {
       acc[name] = convertToJsonSchema(defNode);
       return acc;
     }, {} as Record<string, any>);
@@ -197,9 +198,10 @@ export function parseJsonSchema(json: any): SchemaNode {
     baseNode.oneOf = json.oneOf.map((schema: any) => parseJsonSchema(schema));
   }
 
-  if (json.$defs) {
+  const defs = Object.entries(json.defs ?? {})
+  if (defs && defs.length > 0) {
     const definitions: Record<string, SchemaNode> = {};
-    for (const [name, defJson] of Object.entries(json.$defs)) {
+    for (const [name, defJson] of defs) {
       definitions[name] = parseJsonSchema(defJson);
     }
     baseNode.definitions = definitions;
