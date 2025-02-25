@@ -16,6 +16,7 @@ import ConstNode from './ConstNode';
 import EnumNode from './EnumNode';
 import ReferenceNode from './ReferenceNode';
 import Examples from './Examples';
+import MultipleSuggestiveInput from '../suggestive-input/MultipleSuggestiveInput';
 
 
 export interface SimpleNodeProps {
@@ -23,6 +24,8 @@ export interface SimpleNodeProps {
   onChange: (newNode: SchemaNode) => void;
   rootDefinitions?: Record<string, SchemaNode>;
 }
+
+const nodeTypes = ['string', 'boolean', 'number', 'integer', 'object', 'array', 'null']
 
 const SimpleNode: React.FC<SimpleNodeProps> = ({
                                                  node,
@@ -80,27 +83,18 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
           <InputGroup.Text>
             Type
           </InputGroup.Text>
-          <Form.Select
-            multiple
-            value={node.type}
+          <MultipleSuggestiveInput
+            onChange={it => {
+              onChange({ ...node, type: it.map(it => it.key as NodeType) })
+            }}
+            required
             disabled={node.type === 'undefined'}
-            onChange={(e) => {
-              if (e.target.selectedOptions.length === 0) {
-                node.type = ['string'];
-                return
-              }
-              const newType: NodeType[] = [];
-              for (let selectedOption of e.target.selectedOptions) {
-                newType.push(selectedOption.value as NodeType)
-              }
-              onChange({ ...node, type: newType })
-            }
-            }
-          >
-            {['string', 'boolean', 'number', 'integer', 'object', 'array', 'null'].map((type) => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </Form.Select>
+            values={node.type === 'undefined' ? [] : node.type}
+            maxSuggestions={nodeTypes.length}
+            suggestions={nodeTypes.map(it => {
+              return { key: it, value: it }
+            })}
+          />
           <InputGroup.Text>
             Undefined
           </InputGroup.Text>
