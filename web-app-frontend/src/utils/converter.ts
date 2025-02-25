@@ -198,7 +198,7 @@ export function parseJsonSchema(json: any): SchemaNode {
     baseNode.oneOf = json.oneOf.map((schema: any) => parseJsonSchema(schema));
   }
 
-  const defs = Object.entries(json.defs ?? {})
+  const defs = Object.entries(json.$defs ?? {})
   if (defs && defs.length > 0) {
     const definitions: Record<string, SchemaNode> = {};
     for (const [name, defJson] of defs) {
