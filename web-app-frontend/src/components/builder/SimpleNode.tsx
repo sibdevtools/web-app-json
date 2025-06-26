@@ -22,7 +22,7 @@ import MultipleSuggestiveInput from '../suggestive-input/MultipleSuggestiveInput
 export interface SimpleNodeProps {
   node: SchemaNode;
   onChange: (newNode: SchemaNode) => void;
-  rootDefinitions?: Record<string, SchemaNode>;
+  rootDefinitions?: string[];
 }
 
 const nodeTypes = ['string', 'boolean', 'number', 'integer', 'object', 'array', 'null']

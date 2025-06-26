@@ -25,7 +25,7 @@ const schemas = [
 const SchemaFormBuilder: React.FC<{
   node: SchemaNode;
   onChange: (newNode: SchemaNode) => void;
-  rootDefinitions?: Record<string, SchemaNode>;
+  rootDefinitions?: string[];
   isRoot?: boolean;
 }> = ({ node, onChange, rootDefinitions, isRoot = false }) => {
   return (

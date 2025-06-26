@@ -6,7 +6,7 @@ import { ArraySchemaNode, SchemaNode } from '../../const/type';
 export interface ArrayNodeProps {
   node: ArraySchemaNode;
   onChange: (newNode: SchemaNode) => void;
-  rootDefinitions?: Record<string, SchemaNode>;
+  rootDefinitions?: string[];
 }
 
 const ArrayNode: React.FC<ArrayNodeProps> = ({

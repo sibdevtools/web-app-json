@@ -16,7 +16,7 @@ function renameField(obj: Record<string, SchemaNode>, oldKey: string, newKey: st
 export interface DefinitionsProps {
   node: SchemaNode;
   onChange: (newNode: SchemaNode) => void;
-  rootDefinitions?: Record<string, SchemaNode>;
+  rootDefinitions?: string[];
 }
 
 const Definitions: React.FC<DefinitionsProps> = ({

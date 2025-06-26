@@ -7,7 +7,7 @@ import { LineiconsPlus, LineiconsTrash3 } from '../../const/icons';
 export interface ObjectNodeProps {
   node: ObjectSchemaNode;
   onChange: (newNode: SchemaNode) => void;
-  rootDefinitions?: Record<string, SchemaNode>;
+  rootDefinitions?: string[];
 }
 
 const ObjectNode: React.FC<ObjectNodeProps> = ({

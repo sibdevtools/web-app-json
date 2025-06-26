@@ -7,7 +7,7 @@ import SuggestiveInput from '../suggestive-input/SuggestiveInput';
 export interface ReferenceNodeProps {
   node: SchemaNode;
   onChange: (newNode: SchemaNode) => void;
-  rootDefinitions?: Record<string, SchemaNode>;
+  rootDefinitions?: string[];
 }
 
 const ReferenceNode: React.FC<ReferenceNodeProps> = ({
@@ -25,7 +25,7 @@ const ReferenceNode: React.FC<ReferenceNodeProps> = ({
           onChange={(e) => onChange({ ...node, reference: e.value })}
           required={true}
           suggestions={
-            Object.keys(rootDefinitions || {})
+            (rootDefinitions ?? [])
               .map(it => `#/$defs/${it}`)
               .map(it => {
                 return { key: it, value: it }

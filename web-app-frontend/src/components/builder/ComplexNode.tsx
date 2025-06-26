@@ -9,7 +9,7 @@ import { LineiconsPlus, LineiconsTrash3 } from '../../const/icons';
 export interface ComplexNodeProps {
   node: SchemaNode;
   onChange: (newNode: SchemaNode) => void;
-  rootDefinitions?: Record<string, SchemaNode>;
+  rootDefinitions?: string[];
 }
 
 const ComplexNode: React.FC<ComplexNodeProps> = ({
