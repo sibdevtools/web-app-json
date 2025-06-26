@@ -16,15 +16,6 @@ import Ajv2020 from 'ajv/dist/2020';
 
 const draft06MetaSchema = require('ajv/lib/refs/json-schema-draft-06.json');
 
-const ajv = new Ajv({ allErrors: true });
-ajv.addMetaSchema(draft06MetaSchema);
-addFormats(ajv);
-
-const ajv2019 = new Ajv2019({ allErrors: true })
-addFormats(ajv2019);
-const ajv2020 = new Ajv2020({ allErrors: true })
-addFormats(ajv2020);
-
 export interface JsonInputFormProps {
   jsonSchemaProvider: () => any;
   showMode: 'both' | 'builder' | 'json';
@@ -48,10 +39,17 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
       const jsonSchema = jsonSchemaProvider();
       let validate;
       if (jsonSchema.$schema === 'https://json-schema.org/draft/2019-09/schema') {
+        const ajv2019 = new Ajv2019({ allErrors: true })
+        addFormats(ajv2019);
         validate = ajv2019.compile(jsonSchema);
       } else if (jsonSchema.$schema === 'https://json-schema.org/draft/2020-12/schema') {
+        const ajv2020 = new Ajv2020({ allErrors: true })
+        addFormats(ajv2020);
         validate = ajv2020.compile(jsonSchema);
       } else {
+        const ajv = new Ajv({ allErrors: true });
+        ajv.addMetaSchema(draft06MetaSchema);
+        addFormats(ajv);
         validate = ajv.compile(jsonSchema);
       }
       const valid = validate(dataToValidate);
