@@ -140,7 +140,7 @@ const App: React.FC = () => {
           )
           }
           {schemaValidationErrors.length > 0 && (
-            <div className="mt-3">
+            <div className="mt-2">
               {schemaValidationErrors.map((error, i) => (
                 <Alert key={i} variant="danger">
                   {error}

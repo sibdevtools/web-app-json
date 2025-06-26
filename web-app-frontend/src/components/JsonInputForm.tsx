@@ -151,20 +151,22 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
           }}
           editorProps={{ $blockScrolling: true }}
         />
-        {validationErrors.length > 0 && (
-          <div className="mt-3">
-            {validationErrors.map((error, i) => (
-              <Alert key={i} variant="danger" dismissible>
-                {error}
-              </Alert>
-            ))}
-          </div>
-        )}
-        {validationSuccess && (
-          <Alert variant={'success'} dismissible>
-            JSON is valid
-          </Alert>
-        )}
+        <div className="mt-2">
+          {validationErrors.length > 0 && (
+            <>
+              {validationErrors.map((error, i) => (
+                <Alert key={i} variant="danger" dismissible>
+                  {error}
+                </Alert>
+              ))}
+            </>
+          )}
+          {validationSuccess && (
+            <Alert variant={'success'} dismissible>
+              JSON is valid
+            </Alert>
+          )}
+        </div>
       </Row>
     </>
   );
