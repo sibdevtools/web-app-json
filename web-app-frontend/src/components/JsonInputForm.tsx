@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
+import { Alert, Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import React, { useState } from 'react';
 import Ajv from 'ajv';
@@ -27,23 +27,22 @@ addFormats(ajv2020);
 
 export interface JsonInputFormProps {
   jsonSchemaProvider: () => any;
-  validationErrors: string[];
-  setValidationErrors: (value: string[]) => void;
   showMode: 'both' | 'builder' | 'json';
 }
 
 const JsonInputForm: React.FC<JsonInputFormProps> = ({
                                                        jsonSchemaProvider,
-                                                       validationErrors,
-                                                       setValidationErrors,
                                                        showMode
                                                      }) => {
+  const [validationSuccess, setValidationSuccess] = useState<boolean>(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [validationData, setValidationData] = useState('');
 
   const [isWordWrapEnabled, setIsWordWrapEnabled] = useState(true);
   const settings = loadSettings();
 
   const validateAgainstSchema = () => {
+    setValidationSuccess(false);
     try {
       const dataToValidate = JSON.parse(validationData);
       const jsonSchema = jsonSchemaProvider();
@@ -65,7 +64,6 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
             const propName = e.params.additionalProperty;
             return `${e.message}: '${propName}'`;
           }
-          console.log(JSON.stringify(e));
           if (e.schemaPath) {
             return `'${e.schemaPath}': ${e.message}`;
           }
@@ -76,6 +74,8 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
       setValidationErrors(errors);
       if (errors.length > 0) {
         console.error('Validation errors:', errors);
+      } else {
+        setValidationSuccess(true);
       }
     } catch (e) {
       setValidationErrors([`Invalid JSON: ${(e as Error).message}`]);
@@ -131,7 +131,7 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
           name={`json-input`}
           value={validationData}
           onChange={(value) => setValidationData(value)}
-          className={`rounded border ${(validationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
+          className={`rounded border ${(validationErrors.length === 0 ? 'border-success' : 'border-danger')} mb-2`}
           placeholder="Enter JSON to validate"
           style={{
             resize: 'vertical',
@@ -153,6 +153,20 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
           }}
           editorProps={{ $blockScrolling: true }}
         />
+        {validationErrors.length > 0 && (
+          <div className="mt-3">
+            {validationErrors.map((error, i) => (
+              <Alert key={i} variant="danger" dismissible>
+                {error}
+              </Alert>
+            ))}
+          </div>
+        )}
+        {validationSuccess && (
+          <Alert variant={'success'} dismissible>
+            JSON is valid
+          </Alert>
+        )}
       </Row>
     </>
   );

@@ -11,7 +11,6 @@ import { LineiconsBricks, LineiconsPenToSquare, LineiconsShiftLeft, LineiconsShi
 const App: React.FC = () => {
   const [rootSchema, setRootSchema] = useState<SchemaNode>(initialSchema);
   const [textSchema, setTextSchema] = useState<string>('');
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [schemaValidationErrors, setSchemaValidationErrors] = useState<string[]>([]);
   const [editorMode, setEditorMode] = useState<'builder' | 'ace'>('builder');
   const [showMode, setShowMode] = useState<'both' | 'builder' | 'json'>('both');
@@ -58,7 +57,8 @@ const App: React.FC = () => {
       <Row>
         <Col lg={showMode === 'both' ? 6 : 12} hidden={showMode === 'json'}>
           <Row className="mb-4">
-            <Col xs={7} sm={8} md={10} lg={showMode === 'both' ? 7 : 9} xl={{ span: showMode === 'both' ? 7 : 9, offset: 1 }}>
+            <Col xs={7} sm={8} md={10} lg={showMode === 'both' ? 7 : 9}
+                 xl={{ span: showMode === 'both' ? 7 : 9, offset: 1 }}>
               <h3>JSON Schema Builder</h3>
             </Col>
             <Col xs={5} sm={4} md={2} lg={showMode === 'both' ? 5 : 3} xl={showMode === 'both' ? 4 : 2}>
@@ -156,20 +156,8 @@ const App: React.FC = () => {
             </Col>
           </Row>
           <JsonInputForm jsonSchemaProvider={jsonSchemaProvider}
-                         validationErrors={validationErrors}
-                         setValidationErrors={setValidationErrors}
                          showMode={showMode}
           />
-
-          {validationErrors.length > 0 && (
-            <div className="mt-3">
-              {validationErrors.map((error, i) => (
-                <Alert key={i} variant="danger" className="py-1 my-1">
-                  {error}
-                </Alert>
-              ))}
-            </div>
-          )}
         </Col>
       </Row>
 
