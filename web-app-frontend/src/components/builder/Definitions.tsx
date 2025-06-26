@@ -32,8 +32,8 @@ const Definitions: React.FC<DefinitionsProps> = ({
         <Accordion.Header>Definitions</Accordion.Header>
         <Accordion.Body>
           <Accordion className="mb-3">
-            {Object.entries(node.definitions || {}).map(([name, defNode]) => (
-              <Accordion.Item eventKey={`definition-${name}`}>
+            {Object.entries(node.definitions || {}).map(([name, defNode], index) => (
+              <Accordion.Item eventKey={`definition-${index}`}>
                 <Accordion.Header>{name}</Accordion.Header>
                 <Accordion.Body>
                   <Form.Group className="mb-3">
