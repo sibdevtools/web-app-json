@@ -1,6 +1,7 @@
 import { initialSchema } from '../components/SchemaFormBuilder';
 import {
   ArraySchemaNode,
+  Definition,
   NodeType,
   NumberSchemaNode,
   ObjectSchemaNode,
@@ -115,10 +116,10 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
     schema[node.nodeType] = node[node.nodeType]?.map(schemaNode => convertToJsonSchema(schemaNode));
   }
 
-  const definitions = isRoot && node.definitions ? Object.entries(node.definitions) : [];
+  const definitions = isRoot && node.definitions ? node.definitions : [];
   if (definitions && definitions.length > 0) {
-    schema.$defs = definitions.reduce((acc, [name, defNode]) => {
-      acc[name] = convertToJsonSchema(defNode);
+    schema.$defs = definitions.reduce((acc, definition) => {
+      acc[definition.id] = convertToJsonSchema(definition.definition);
       return acc;
     }, {} as Record<string, any>);
   }
@@ -200,9 +201,12 @@ export function parseJsonSchema(json: any): SchemaNode {
 
   const defs = Object.entries(json.$defs ?? {})
   if (defs && defs.length > 0) {
-    const definitions: Record<string, SchemaNode> = {};
+    const definitions: Definition[] = [];
     for (const [name, defJson] of defs) {
-      definitions[name] = parseJsonSchema(defJson);
+      definitions.push({
+        id: name,
+        definition: parseJsonSchema(defJson),
+      });
     }
     baseNode.definitions = definitions;
   }

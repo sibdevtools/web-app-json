@@ -1,17 +1,8 @@
 import { Accordion, Button, Form, InputGroup } from 'react-bootstrap';
-import React, { useState } from 'react';
+import React from 'react';
 import SchemaFormBuilder, { initialSchema } from '../SchemaFormBuilder';
-import { SchemaNode } from '../../const/type';
+import { Definition, SchemaNode } from '../../const/type';
 import { LineiconsPlus, LineiconsTrash3 } from '../../const/icons';
-
-
-function renameField(obj: Record<string, SchemaNode>, oldKey: string, newKey: string): Record<string, SchemaNode> {
-  if (oldKey in obj) {
-    const { [oldKey]: value, ...rest } = obj;
-    return { ...rest, [newKey]: value };
-  }
-  return obj;
-}
 
 export interface DefinitionsProps {
   node: SchemaNode;
@@ -24,34 +15,36 @@ const Definitions: React.FC<DefinitionsProps> = ({
                                                    onChange,
                                                    rootDefinitions
                                                  }) => {
-  const [counter, setCounter] = useState(0)
-
   return (
     <Accordion className="mt-3">
       <Accordion.Item eventKey="definitions">
         <Accordion.Header>Definitions</Accordion.Header>
         <Accordion.Body>
           <Accordion className="mb-3">
-            {Object.entries(node.definitions || {}).map(([name, defNode], index) => (
+            {(node.definitions || []).map((definition, index) => (
               <Accordion.Item eventKey={`definition-${index}`}>
-                <Accordion.Header>{name}</Accordion.Header>
+                <Accordion.Header>{definition.id}</Accordion.Header>
                 <Accordion.Body>
                   <Form.Group className="mb-3">
                     <InputGroup>
                       <InputGroup.Text>Name</InputGroup.Text>
                       <Form.Control
-                        value={name}
+                        value={definition.id}
                         onChange={(e) => {
-                          const newDefinitions = renameField(node.definitions || {}, name, e.target.value)
+                          const newDefinitions = [...(node.definitions ?? [])];
+                          let definition = newDefinitions[index].definition;
+                          newDefinitions[index] = {
+                            id: e.target.value,
+                            definition: definition,
+                          };
                           onChange({ ...node, definitions: newDefinitions });
                         }}
                       />
                       <Button
                         variant="danger"
                         onClick={() => {
-                          const newDefinitions = { ...node.definitions };
-                          delete newDefinitions[name];
-                          onChange({ ...node, definitions: newDefinitions });
+                          const definitions = node.definitions?.filter((_, i) => i === index) ?? [];
+                          onChange({ ...node, definitions: definitions });
                         }}
                       >
                         <LineiconsTrash3 />
@@ -59,10 +52,13 @@ const Definitions: React.FC<DefinitionsProps> = ({
                     </InputGroup>
                   </Form.Group>
                   <SchemaFormBuilder
-                    node={defNode}
+                    node={definition.definition}
                     onChange={(newDefNode) => {
-                      const newDefinitions = { ...node.definitions };
-                      newDefinitions[name] = newDefNode;
+                      const newDefinitions = [...(node.definitions ?? [])];
+                      newDefinitions[index] = {
+                        id: newDefNode.id ?? definition.id,
+                        definition: newDefNode,
+                      };
                       onChange({ ...node, definitions: newDefinitions });
                     }}
                     rootDefinitions={rootDefinitions}
@@ -75,9 +71,11 @@ const Definitions: React.FC<DefinitionsProps> = ({
             variant="outline-success"
             size="sm"
             onClick={() => {
-              const newName = `definition-${counter}`;
-              setCounter(counter + 1)
-              const newDefinitions = { ...node.definitions || {}, [newName]: initialSchema };
+              const definition: Definition = {
+                id: 'definition',
+                definition: initialSchema
+              }
+              const newDefinitions = [...node.definitions || [], definition];
               onChange({ ...node, definitions: newDefinitions });
             }}
           >

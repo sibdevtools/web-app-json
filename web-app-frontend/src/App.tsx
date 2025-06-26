@@ -129,7 +129,7 @@ const App: React.FC = () => {
             <SchemaFormBuilder
               node={rootSchema}
               onChange={setRootSchema}
-              rootDefinitions={Object.keys(rootSchema.definitions ?? {})}
+              rootDefinitions={(rootSchema.definitions ?? []).map(it => it.id)}
               isRoot={true} />
           ) : (
             <SchemaTextEditor

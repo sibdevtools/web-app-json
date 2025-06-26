@@ -1,6 +1,11 @@
 // Base interface for all schema nodes
 export type NodeType = 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'null'
 
+export interface Definition {
+  id: string;
+  definition: SchemaNode
+}
+
 export interface BaseSchemaNode {
   nodeType: 'simple' | 'oneOf' | 'anyOf' | 'allOf';
   type: 'undefined' | NodeType[];
@@ -8,7 +13,7 @@ export interface BaseSchemaNode {
   const?: string;
   enum?: Array<string>;
   reference?: string;
-  definitions?: Record<string, SchemaNode>;
+  definitions?: Definition[];
   title: string;
   description: string;
   default?: string;
