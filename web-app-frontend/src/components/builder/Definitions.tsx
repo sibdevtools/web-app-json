@@ -43,7 +43,7 @@ const Definitions: React.FC<DefinitionsProps> = ({
                       <Button
                         variant="danger"
                         onClick={() => {
-                          const definitions = node.definitions?.filter((_, i) => i === index) ?? [];
+                          const definitions = node.definitions?.filter((_, i) => i !== index) ?? [];
                           onChange({ ...node, definitions: definitions });
                         }}
                       >
