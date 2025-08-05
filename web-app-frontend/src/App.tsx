@@ -56,7 +56,7 @@ const App: React.FC = () => {
     <Container fluid className="my-4">
       <Row>
         <Col lg={showMode === 'both' ? 6 : 12} hidden={showMode === 'json'}>
-          <Row className="mb-4">
+          <Row className="mb-2">
             <Col xs={7} sm={8} md={10} lg={showMode === 'both' ? 7 : 9}
                  xl={{ span: showMode === 'both' ? 7 : 9, offset: 1 }}>
               <h3>JSON Schema Builder</h3>
@@ -101,7 +101,7 @@ const App: React.FC = () => {
           </Row>
         </Col>
         <Col className={`d-none ${showMode == 'builder' ? '' : 'd-lg-block'}`} lg={showMode === 'both' ? 6 : 12}>
-          <Row className="mb-4">
+          <Row className="mb-2">
             <Col lg={{ span: 2, offset: 1 }}>
               <ButtonGroup className="mb-2">
                 <Button variant={showMode === 'both' ? 'secondary' : 'outline-secondary'}
