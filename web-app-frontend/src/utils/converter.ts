@@ -3,11 +3,21 @@ import {
   ArraySchemaNode,
   Definition,
   NodeType,
+  NodeTypeEnum,
   NumberSchemaNode,
   ObjectSchemaNode,
   SchemaNode,
   StringSchemaNode
 } from '../const/type';
+
+const NODE_TYPE_ORDER = Object.values(NodeTypeEnum);
+
+function sortNodeTypes(types: NodeType[]): NodeType[] {
+  return [...types].sort((a, b) =>
+    NODE_TYPE_ORDER.indexOf(a as NodeTypeEnum) - NODE_TYPE_ORDER.indexOf(b as NodeTypeEnum)
+  );
+}
+
 
 export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): any {
   const schema: any = {
@@ -21,7 +31,7 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
     if (node.type.length === 1) {
       schema.type = node.type[0];
     } else {
-      schema.type = node.type;
+      schema.type = sortNodeTypes(node.type);
     }
   }
 
@@ -138,7 +148,7 @@ export function parseJsonSchema(json: any): SchemaNode {
   else if (json.allOf) nodeType = 'allOf';
 
   if (Array.isArray(json.type)) {
-    type = json.type as NodeType[];
+    type = sortNodeTypes(json.type);
   } else if (typeof json.type === 'string') {
     type = [json.type as NodeType];
   }

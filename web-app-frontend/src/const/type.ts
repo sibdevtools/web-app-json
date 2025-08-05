@@ -1,5 +1,15 @@
 // Base interface for all schema nodes
-export type NodeType = 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'null'
+export enum NodeTypeEnum {
+  string = 'string',
+  boolean = 'boolean',
+  number = 'number',
+  integer = 'integer',
+  object = 'object',
+  array = 'array',
+  null = 'null',
+}
+
+export type NodeType = keyof typeof NodeTypeEnum;
 
 export interface Definition {
   id: string;
