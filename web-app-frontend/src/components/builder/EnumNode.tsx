@@ -26,6 +26,7 @@ const EnumNode: React.FC<EnumNodeProps> = ({
               <InputGroup.Text>Enum Item</InputGroup.Text>
               <Form.Control
                 value={it || ''}
+                placeholder="JSON value (e.g., true, 42, &quot;text&quot;, [])"
                 onChange={(e) => {
                   const newEnum = [...(node.enum || [])]
                   newEnum[index] = e.target.value

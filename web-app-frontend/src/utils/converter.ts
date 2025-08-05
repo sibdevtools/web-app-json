@@ -12,12 +12,28 @@ import {
 
 const NODE_TYPE_ORDER = Object.values(NodeTypeEnum);
 
+// Standard JSON Schema keywords that should not be treated as custom properties
+const STANDARD_JSON_SCHEMA_KEYWORDS = new Set([
+  '$id', '$schema', 'title', 'description', 'type', 'const', 'enum', '$ref',
+  'examples', 'allOf', 'anyOf', 'oneOf', '$defs', 'definitions',
+  // String keywords
+  'minLength', 'maxLength', 'pattern', 'format',
+  // Number keywords
+  'minimum', 'exclusiveMinimum', 'maximum', 'exclusiveMaximum', 'multipleOf',
+  // Object keywords
+  'properties', 'patternProperties', 'additionalProperties', 'required',
+  'minProperties', 'maxProperties',
+  // Array keywords
+  'items', 'minItems', 'maxItems',
+  // Common keywords
+  'default'
+]);
+
 function sortNodeTypes(types: NodeType[]): NodeType[] {
   return [...types].sort((a, b) =>
     NODE_TYPE_ORDER.indexOf(a as NodeTypeEnum) - NODE_TYPE_ORDER.indexOf(b as NodeTypeEnum)
   );
 }
-
 
 export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): any {
   const schema: any = {
@@ -134,9 +150,17 @@ export function convertToJsonSchema(node: SchemaNode, isRoot: boolean = false): 
     }, {} as Record<string, any>);
   }
 
+  // Add custom properties to the schema
+  if (node.customProperties) {
+    Object.entries(node.customProperties).forEach(([key, value]) => {
+      if (!STANDARD_JSON_SCHEMA_KEYWORDS.has(key)) {
+        schema[key] = value;
+      }
+    });
+  }
+
   return schema;
 }
-
 
 export function parseJsonSchema(json: any): SchemaNode {
   let type: SchemaNode['type'] = 'undefined';
@@ -170,6 +194,18 @@ export function parseJsonSchema(json: any): SchemaNode {
     title: json.title || '',
     description: json.description || '',
   };
+
+  // Extract custom properties
+  const customProperties: Record<string, any> = {};
+  Object.entries(json).forEach(([key, value]) => {
+    if (!STANDARD_JSON_SCHEMA_KEYWORDS.has(key)) {
+      customProperties[key] = value;
+    }
+  });
+
+  if (Object.keys(customProperties).length > 0) {
+    baseNode.customProperties = customProperties;
+  }
 
   switch (specification) {
     case 'const':

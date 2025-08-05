@@ -33,6 +33,7 @@ export interface BaseSchemaNode {
   allOf?: SchemaNode[];
   anyOf?: SchemaNode[];
   oneOf?: SchemaNode[];
+  customProperties?: Record<string, any>; // Add this line
 }
 
 // Interface for string type schema nodes
