@@ -86,6 +86,7 @@ const SchemaFormBuilder: React.FC<{
         <Definitions
           node={node}
           onChange={onChange}
+          rootDefinitions={rootDefinitions}
         />
       )}
     </>
