@@ -37,9 +37,9 @@ const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
 
   return (
     <>
-      <Row className={'px-2'}>
+      <Row>
         <Col md={{ offset: 11, span: 1 }}>
-          <ButtonGroup>
+          <ButtonGroup className={'float-end'}>
             <Button
               variant="primary"
               title={isWordWrapEnabled ? 'Unwrap' : 'Wrap'}
@@ -51,7 +51,7 @@ const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
           </ButtonGroup>
         </Col>
       </Row>
-      <Row className={'px-2'}>
+      <Row>
         <AceEditor
           mode={'json'}
           theme={settings['aceTheme'].value}
@@ -59,17 +59,16 @@ const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
           name={`schema-representation`}
           value={textSchema}
           onChange={setTextSchema}
-          className={`rounded border ${(schemaValidationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
+          className={`border ${(schemaValidationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
           placeholder="Enter JSON Schema"
           style={{
             resize: 'vertical',
             overflow: 'auto',
-            height: '480px',
             minHeight: '200px',
           }}
           fontSize={14}
           width="100%"
-          height="480px"
+          height="640px"
           showPrintMargin={true}
           showGutter={true}
           highlightActiveLine={true}
