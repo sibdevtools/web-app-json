@@ -13,3 +13,5 @@ import 'ace-builds/src-min-noconflict/theme-solarized_light';
 import 'ace-builds/src-min-noconflict/theme-terminal';
 
 import 'ace-builds/src-min-noconflict/ext-language_tools';
+
+import 'ace-builds/src-min-noconflict/ext-searchbox';

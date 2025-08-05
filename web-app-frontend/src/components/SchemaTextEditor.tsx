@@ -5,6 +5,7 @@ import { loadSettings } from '../settings/utils';
 
 import '../const/ace.imports'
 import { FluentTextWrap20Regular, FluentTextWrapOff20Regular } from '../const/icons';
+import { IAceEditor } from 'react-ace/lib/types';
 
 export interface SchemaTextEditorProps {
   textSchema: string;
@@ -19,6 +20,20 @@ const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
                                                            }) => {
   const settings = loadSettings();
   const [isWordWrapEnabled, setIsWordWrapEnabled] = useState(true);
+
+  const handleLoad = (editor: IAceEditor) => {
+    editor.commands.addCommand({
+      name: "openSearch",
+      bindKey: { win: "Ctrl-F", mac: "Command-F" },
+      exec: (editor) => editor.execCommand("find"),
+    });
+
+    editor.commands.addCommand({
+      name: "openReplace",
+      bindKey: { win: "Ctrl-H", mac: "Command-H" },
+      exec: (editor) => editor.execCommand("replace"),
+    });
+  };
 
   return (
     <>
@@ -40,10 +55,12 @@ const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
         <AceEditor
           mode={'json'}
           theme={settings['aceTheme'].value}
+          onLoad={handleLoad}
           name={`schema-representation`}
           value={textSchema}
           onChange={setTextSchema}
           className={`rounded border ${(schemaValidationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
+          placeholder="Enter JSON Schema"
           style={{
             resize: 'vertical',
             overflow: 'auto',

@@ -13,6 +13,7 @@ import {
 } from '../const/icons';
 import Ajv2019 from 'ajv/dist/2019';
 import Ajv2020 from 'ajv/dist/2020';
+import { IAceEditor } from 'react-ace/lib/types';
 
 const draft06MetaSchema = require('ajv/lib/refs/json-schema-draft-06.json');
 
@@ -31,6 +32,20 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
 
   const [isWordWrapEnabled, setIsWordWrapEnabled] = useState(true);
   const settings = loadSettings();
+
+  const handleLoad = (editor: IAceEditor) => {
+    editor.commands.addCommand({
+      name: "openSearch",
+      bindKey: { win: "Ctrl-F", mac: "Command-F" },
+      exec: (editor) => editor.execCommand("find"),
+    });
+
+    editor.commands.addCommand({
+      name: "openReplace",
+      bindKey: { win: "Ctrl-H", mac: "Command-H" },
+      exec: (editor) => editor.execCommand("replace"),
+    });
+  };
 
   const validateAgainstSchema = () => {
     setValidationSuccess(false);
@@ -126,6 +141,7 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
         <AceEditor
           mode={'json'}
           theme={settings['aceTheme'].value}
+          onLoad={handleLoad}
           name={`json-input`}
           value={validationData}
           onChange={(value) => setValidationData(value)}
