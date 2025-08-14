@@ -85,38 +85,50 @@ export const App: React.FC = () => {
       const validate = getValidateFn(jsonSchema);
       const valid = validate(dataToValidate);
 
-      const errors: string[] = [];
 
       if (!valid && validate.errors) {
-        errors.push(...validate.errors.map(e => {
-          if (e.keyword === 'additionalProperties' && 'additionalProperty' in e.params) {
-            const propName = e.params.additionalProperty;
-            return `${e.message}: '${propName}'`;
-          }
-          if (e.schemaPath) {
-            return `'${e.schemaPath}': ${e.message}`;
-          }
-          return `${e.message}`;
-        }));
+        const errors = validate.errors
+          .map(e => {
+              if (e.keyword === 'additionalProperties' && 'additionalProperty' in e.params) {
+                const propName = e.params.additionalProperty;
+                return `${e.message}: '${propName}'`;
+              }
+              if (e.schemaPath) {
+                return `'${e.schemaPath}': ${e.message}`;
+              }
+              return `${e.message}`;
+            }
+          );
+        setToasts((prev) => [
+            ...prev,
+            ...errors.map(it => ({
+              id: uuidv4(),
+              title: 'JSON Validation',
+              variant: 'danger',
+              message: it,
+              createdAt: new Date(),
+            })),
+          ]
+        )
+      } else {
+        setToasts((prev) => [
+            ...prev,
+            {
+              id: uuidv4(),
+              title: 'JSON Validation',
+              variant: 'success',
+              message: 'JSON is valid',
+              createdAt: new Date(),
+            },
+          ]
+        )
       }
-
-      setToasts((prev) => [
-          ...prev,
-          ...errors.map(it => ({
-            id: uuidv4(),
-            title: 'JSON Validation Error',
-            variant: 'danger',
-            message: it,
-            createdAt: new Date(),
-          })),
-        ]
-      )
     } catch (e) {
       setToasts((prev) => [
           ...prev,
           {
             id: uuidv4(),
-            title: 'JSON Validation Error',
+            title: 'JSON Validation',
             variant: 'danger',
             message: `Validation failed: ${(e as Error).message}`,
             createdAt: new Date(),
