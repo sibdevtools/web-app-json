@@ -51,7 +51,7 @@ const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
           }}
           fontSize={14}
           width="100%"
-          height="640px"
+          height="100vh"
           showPrintMargin={true}
           showGutter={true}
           highlightActiveLine={true}
