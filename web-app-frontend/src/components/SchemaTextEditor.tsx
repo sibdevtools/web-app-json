@@ -10,16 +10,12 @@ export interface SchemaTextEditorProps {
   textSchema: string;
   setTextSchema: (value: string) => void;
   isWordWrapEnabled: boolean;
-  validationErrors: string[];
-  setValidationErrors: (errors: string[]) => void;
 }
 
 const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
                                                              textSchema,
                                                              setTextSchema,
                                                              isWordWrapEnabled,
-                                                             validationErrors,
-                                                             setValidationErrors
                                                            }) => {
   const settings = loadSettings();
 
@@ -39,15 +35,6 @@ const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
 
   return (
     <>
-      {validationErrors.length > 0 && (
-        <>
-          {validationErrors.map((error, i) => (
-            <Alert className={'m-2'} key={i} variant="danger" dismissible onClose={() => setValidationErrors([])}>
-              {error}
-            </Alert>
-          ))}
-        </>
-      )}
       <Row>
         <AceEditor
           mode={'json'}
@@ -56,7 +43,6 @@ const SchemaTextEditor: React.FC<SchemaTextEditorProps> = ({
           name={`schema-representation`}
           value={textSchema}
           onChange={setTextSchema}
-          className={`border ${(validationErrors.length === 0 ? 'border-success' : 'border-danger')}`}
           placeholder="Enter JSON Schema"
           style={{
             resize: 'vertical',

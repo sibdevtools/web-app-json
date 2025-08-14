@@ -1,4 +1,4 @@
-import { Alert, Row } from 'react-bootstrap';
+import { Row } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import React from 'react';
 import { loadSettings } from '../settings/utils';
@@ -10,16 +10,12 @@ export interface JsonInputFormProps {
   json: string;
   setJson: (json: string) => void;
   isWordWrapEnabled: boolean;
-  validationErrors: string[];
-  setValidationErrors: (errors: string[]) => void;
 }
 
 const JsonInputForm: React.FC<JsonInputFormProps> = ({
                                                        json,
                                                        setJson,
                                                        isWordWrapEnabled,
-                                                       validationErrors,
-                                                       setValidationErrors
                                                      }) => {
   const settings = loadSettings();
 
@@ -39,15 +35,6 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
 
   return (
     <>
-      {validationErrors.length > 0 && (
-        <>
-          {validationErrors.map((error, i) => (
-            <Alert className={'m-2'} key={i} variant="danger" dismissible onClose={() => setValidationErrors([])}>
-              {error}
-            </Alert>
-          ))}
-        </>
-      )}
       <Row>
         <AceEditor
           mode={'json'}
@@ -56,7 +43,6 @@ const JsonInputForm: React.FC<JsonInputFormProps> = ({
           name={`json-input`}
           value={json}
           onChange={(value) => setJson(value)}
-          className={`border ${(validationErrors.length === 0 ? 'border-success' : 'border-danger')} mb-2`}
           placeholder="Enter JSON to validate"
           style={{
             resize: 'vertical',
