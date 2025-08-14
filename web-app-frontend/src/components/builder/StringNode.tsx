@@ -1,7 +1,7 @@
 import { Accordion, Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import { SchemaNode, StringSchemaNode } from '../../const/type';
-import SuggestiveInput from '../suggestive-input/SuggestiveInput';
+import { SuggestiveInput } from '@sibdevtools/frontend-common';
 
 const buildInFormats = [
   'date-time', 'time', 'date', 'duration',

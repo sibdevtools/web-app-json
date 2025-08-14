@@ -5,7 +5,7 @@ import SimpleNode from './builder/SimpleNode';
 import ComplexNode from './builder/ComplexNode';
 import NodeTypeSelector from './builder/NodeTypeSelector';
 import { Form, InputGroup } from 'react-bootstrap';
-import SuggestiveInput from './suggestive-input/SuggestiveInput';
+import { SuggestiveInput } from '@sibdevtools/frontend-common';
 
 export const initialSchema: SchemaNode = {
   nodeType: 'simple',

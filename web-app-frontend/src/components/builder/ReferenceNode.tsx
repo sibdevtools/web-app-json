@@ -1,7 +1,7 @@
 import { Form, InputGroup } from 'react-bootstrap';
 import React from 'react';
 import { SchemaNode } from '../../const/type';
-import SuggestiveInput from '../suggestive-input/SuggestiveInput';
+import { SuggestiveInput } from '@sibdevtools/frontend-common';
 
 
 export interface ReferenceNodeProps {

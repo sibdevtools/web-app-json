@@ -1,4 +1,4 @@
-import { Accordion, Form, InputGroup, Button } from 'react-bootstrap';
+import { Accordion, Button, Form, InputGroup } from 'react-bootstrap';
 import React, { useState } from 'react';
 import {
   ArraySchemaNode,
@@ -16,18 +16,18 @@ import ConstNode from './ConstNode';
 import EnumNode from './EnumNode';
 import ReferenceNode from './ReferenceNode';
 import Examples from './Examples';
-import MultipleSuggestiveInput from '../suggestive-input/MultipleSuggestiveInput';
 import { LineiconsMinus, LineiconsPlus } from '../../const/icons';
+import { MultipleSuggestiveInput } from '@sibdevtools/frontend-common';
 
 const isValidJsonString = (jsonString: string): boolean => {
-    if (jsonString === '') return true; // Empty string is valid (will default to null)
-    try {
-      JSON.parse(jsonString);
-      return true;
-    } catch {
-      return false;
-    }
-  };
+  if (jsonString === '') return true; // Empty string is valid (will default to null)
+  try {
+    JSON.parse(jsonString);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 export interface SimpleNodeProps {
   node: SchemaNode;
@@ -338,7 +338,7 @@ const SimpleNode: React.FC<SimpleNodeProps> = ({
                   onClick={handleAddCustomProperty}
                   disabled={!newCustomKey.trim() || (newCustomValue !== '' && !isValidJsonString(newCustomValue))}
                 >
-                  <LineiconsPlus/>
+                  <LineiconsPlus />
                 </Button>
               </InputGroup>
               {newCustomValue !== '' && !isValidJsonString(newCustomValue) && (

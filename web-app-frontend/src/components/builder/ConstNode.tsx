@@ -19,6 +19,7 @@ const ConstNode: React.FC<ConstNodeProps> = ({
         <Form.Control
           value={node.const || ''}
           onChange={(e) => onChange({ ...node, const: e.target.value })}
+          placeholder={'JSON value (e.g., true, 42, &quot;text&quot;, [])'}
         />
       </InputGroup>
     </Form.Group>
